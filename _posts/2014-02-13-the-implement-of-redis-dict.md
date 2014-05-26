@@ -70,16 +70,17 @@ dict表示字典，由两个桶数组组成，type是一些函数指针（哈希
     for(i = 1 ; i <= n ; ++ i){
         if( d->rehashidx !=-1 ){
                     if(d->h[0]->used != 0){
-                                把 d->h[0]中一个非空桶元素转移（重新hash）到 d->h[1]中  ；  
-                                // 上一步会使得:
-                                // d->h[0]->used -= 转移的元素个数 
-                                // d->h[1]->used += 转移的元素个数 ；
-                                把 element[i] 哈希到 d->h[1]中  ;  // d->h[1]->used ++ 
+                       把 d->h[0]中一个非空桶元素转移（重新hash）到 d->h[1]中
+                       // 上一步会使得:
+                       // d->h[0]->used -= 转移的元素个数 
+                       // d->h[1]->used += 转移的元素个数 ；
+                       把 element[i] 哈希到 d->h[1]中  ;  // d->h[1]->used ++ 
                     }else{
-                                //用桶数组1覆盖桶数组0； 赋值前要释放d->h[0]的空间，赋值后重置d->h[1])
-                                d->h[0] = d->h[1] ; 
-                                d->rehashidx = -1 ; 
-                                把element[i]哈希到d->h[0]中；// d->h[0]->used ++ ; 
+                       //用桶数组1覆盖桶数组0；
+                       //赋值前要释放d->h[0]的空间，赋值后重置d->h[1])
+                       d->h[0] = d->h[1] ; 
+                       d->rehashidx = -1 ; 
+                       把element[i]哈希到d->h[0]中；// d->h[0]->used ++ ; 
                     }
         }else if( d->h[0]->used >= d->h[0]->size )
                     d->h[1] = new bucket[2*d->h[0]->size ];    

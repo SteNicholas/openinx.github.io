@@ -80,7 +80,8 @@ tags: [ mysql ]
         LIST OF TRANSACTIONS FOR EACH SESSION:
         ---TRANSACTION AF7, ACTIVE 1 sec
         1 lock struct(s), heap size 376, 0 row lock(s), undo log entries 65
-        MySQL thread id 310, OS thread handle 0x7f8cda319700, query id 98117 localhost 127.0.0.1 root
+        MySQL thread id 310, OS thread handle 0x7f8cda319700, query id 98117 
+            localhost 127.0.0.1 root
         TABLE LOCK table `test`.`fake_data` trx id AF7 lock mode IX
 
 

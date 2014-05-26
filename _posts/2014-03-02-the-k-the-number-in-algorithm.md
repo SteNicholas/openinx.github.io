@@ -209,10 +209,14 @@ tags: [algorithm]
             lld mid = (lp + rp)>>1 ; 
             if(k<=s[d][r]-s[d][l-1])
                 return getkth(d+1 ,lp , mid , 
-                                lp+s[d][l-1]-s[d][lp-1] , lp+s[d][r]-s[d][lp-1]-1 , k );
+                    lp+s[d][l-1]-s[d][lp-1] ,
+                    lp+s[d][r]-s[d][lp-1]-1 ,
+                    k);
             else 
-                return getkth(d+1 ,mid+1 , rp , mid+1+(l-lp)-(s[d][l-1]-s[d][lp-1]) , 
-                                mid+(r-lp+1)-(s[d][r]-s[d][lp-1]) , k-(s[d][r]-s[d][l-1]) );
+                return getkth(d+1 ,mid+1 , rp ,
+                    mid+1+(l-lp)-(s[d][l-1]-s[d][lp-1]) , 
+                    mid+(r-lp+1)-(s[d][r]-s[d][lp-1]) ,
+                    k-(s[d][r]-s[d][l-1]) );
         }
 
 
