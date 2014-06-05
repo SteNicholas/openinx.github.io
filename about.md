@@ -4,8 +4,23 @@ title: About
 permalink: /about/
 ---
 
-This is the base Jekyll theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](http://jekyllrb.com/)
+### 简介
 
-You can find the source code for the Jekyll new theme at: [github.com/jglovier/jekyll-new](https://github.com/jglovier/jekyll-new)
+从小学开始，到初中，到高中，到大学，到工作，鄙人傻逼度与年纪成指数级正比。
 
-You can find the source code for Jekyll at [github.com/jekyll/jekyll](https://github.com/jekyll/jekyll)
+### 心中极客形象
+
+* 不限语言，代码信手拈来
+* 算法功力深厚， 玩个 Codeforces 或者 Topcoder 轻轻松松，毫无压力。
+* 给定需求，通过组合各种开源项目，迅速给出解决方案。 
+* 个人挑战10行代码，轻松无压力
+* 除了玩电脑和手机，还有其他至少一项能唬得住人的业余爱好
+* 少废话，多行动
+* 当然泡M的水平，假设能够达到 "万花从中过，片叶不沾身“ 这种境界都话。。。以上6条自动无视
+
+
+### 联系方式： 
+
+email:  openinx@gmail.com
+豆瓣： [openinx](http://www.douban.com/people/68306838/)
+
