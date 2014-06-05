@@ -19,7 +19,7 @@ permalink: /about/
 * 当然泡M的水平，假设能够达到 "万花从中过，片叶不沾身“ 这种境界都话。。。以上6条自动无视
 
 
-### 联系方式： 
+### 联系方式
 
 * email openinx@gmail.com
 * 豆瓣 [openinx](http://www.douban.com/people/68306838/)
