@@ -22,5 +22,5 @@ permalink: /about/
 ### 联系方式： 
 
 email:  openinx@gmail.com
-豆瓣： [openinx](http://www.douban.com/people/68306838/)
 
+豆瓣： [openinx](http://www.douban.com/people/68306838/)
