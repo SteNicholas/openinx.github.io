@@ -6,6 +6,7 @@ category:
 tags: [algorithm]
 ---
 
+
 [Zookeeper](http://zookeeper.apache.org/)自然不用我多讲了，一个分布式协调工具。有几个问题我比较好奇： 
 
 * Zookeeper如何实现watcher的异步回调？ （代码细节）
@@ -59,7 +60,7 @@ tags: [algorithm]
 
 + 2步中， KazooClient的主线程通过os的pipe来做线程间通信。这个还挺有意思的。 主线程会往writepipe里面写一个字节，通知thread_1
 + 3,4步中， thread1是通过 select([socket, readpipe],[],[]) 来检测到socket和readpipe上的读事件的。 
-
+   
    * 当socket上有读事件，说明Zookeeper-Server有Response返回。这时候可以去读取socket上的数据。 
    * 当readpipe上有读事件时，说明主线程又往queue这个队列发送请求了。因为主线程会往queue里放请求，然后往writepipe写字节。
 
@@ -72,22 +73,34 @@ tags: [algorithm]
 
 首先要说明，Zookeeper的各种用法基本都基于一个道理。就是 _临时_ 属性的Znode挂了，Zookeeper服务器会向所有对该Znode父亲加了Watcher的客户端发ChildrenChangeEvent事件。那么这样的话，每个活着的客户端收到ChildrenChangeEvent之后，就可以根据一个统一的算法来默认谁该做什么事情了。比如我们几个客户端都约定好，当我们收到ChildrenChangeEVent事件的时候，当前序列号最小的那哥们去干什么事情。当然其他客户端必须时刻关注序列号最小的哥们现在是不是健在，假设不健在，那大家私底下又要开始下一轮协商了。 
 
+
+
 * Lock
 
-  LocK最经典的应用场景当然是高可用了。一个对状态有依赖的服务，当然不能同时开启多个这样的服务，那这时候就可以通过Zookeeper的LOCK来保证任何一个时间点只会有一台机器提供服务。其他的机器都处于阻塞状态。一旦发现提供服务的机器挂了，LOCK就释放了，其他机器会马上去抢锁，抢到锁了， 就可以提供服务了。 这样就能保证服务器在一个zookeeper的SESSION超时时间之内，提供高可用的服务。 
+  LocK最经典的应用场景当然是高可用了。一个对状态有依赖的服务，当然不能同时开启多个这样的服务，那这时候就可以通过Zookeeper的LOCK来保证任何一个时间点只会有一台机器提供服务。其他的机器都处于阻塞状态。一旦发现提供服务的机器挂了，LOCK就释放了，其他机器会马上去抢锁，抢到锁了， 就可以提供服务了。 这样就能保证服务器在一个zookeeper的SESSION超时时间之内，提供高可用的服务。
+ 
+
   Lock的实现，基本就是上面说明的。大家私下选出Leader后，都乖乖让Leader占着锁，其他人默默关注着Leader的父亲（通过exists接口添加Znode的Watch），然后就都阻塞住了。
+
+
 
 * Semaphore
 
   最多容许N个Client拿到锁。 Kazoo的实现是用的上面的Lock加临时节点。考虑下用注册临时有序节点的方式是否可行呢？ 
 
+
+
 * Counter 
 
   分布式计数器，N个客户端大家可以并发的同时对counter做自增。Kazoo的实现没有用临时节点，而是采用更简单的思路，直接依赖Znode修改的版本，当大家都拿到同一个版本的znode值做自增时，只有一个会成功（Zookeeper在服务器的版本控制里面做好的），其他都会失败，失败的Client直接重试就OK了。 
 
+
+
 * Barrier
 
   Barrire就是能把所有的N个Client都阻塞住，直到满足某一个条件时，大家都从阻塞状态变成非阻塞状态。 Kazoo实现是：直接往一个节点上通过exists添加watch, 添加watch之后，直接用event阻塞住自己。只有当watch的节点被删除时，event才会释放，主线程从阻塞变成非阻塞。
+
+
 
 * DoubleBarrier 
 
@@ -96,4 +109,3 @@ tags: [algorithm]
 * Party
 * Queue
 * Partitioner
-
