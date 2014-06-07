@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "谈谈Redist字典的实现"
+title: "谈谈Redis字典的实现"
 description: ""
 category: 
 tags: [algorithm]
