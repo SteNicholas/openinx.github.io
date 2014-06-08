@@ -75,37 +75,43 @@ tags: [algorithm]
 
 
 
-* Lock
+#### Lock
 
   LocK最经典的应用场景当然是高可用了。一个对状态有依赖的服务，当然不能同时开启多个这样的服务，那这时候就可以通过Zookeeper的LOCK来保证任何一个时间点只会有一台机器提供服务。其他的机器都处于阻塞状态。一旦发现提供服务的机器挂了，LOCK就释放了，其他机器会马上去抢锁，抢到锁了， 就可以提供服务了。 这样就能保证服务器在一个zookeeper的SESSION超时时间之内，提供高可用的服务。
  
-
   Lock的实现，基本就是上面说明的。大家私下选出Leader后，都乖乖让Leader占着锁，其他人默默关注着Leader的父亲（通过exists接口添加Znode的Watch），然后就都阻塞住了。
 
-
-
-* Semaphore
+#### Semaphore
 
   最多容许N个Client拿到锁。 Kazoo的实现是用的上面的Lock加临时节点。考虑下用注册临时有序节点的方式是否可行呢？ 
 
 
 
-* Counter 
+#### Counter 
 
   分布式计数器，N个客户端大家可以并发的同时对counter做自增。Kazoo的实现没有用临时节点，而是采用更简单的思路，直接依赖Znode修改的版本，当大家都拿到同一个版本的znode值做自增时，只有一个会成功（Zookeeper在服务器的版本控制里面做好的），其他都会失败，失败的Client直接重试就OK了。 
 
 
 
-* Barrier
+#### Barrier
 
   Barrire就是能把所有的N个Client都阻塞住，直到满足某一个条件时，大家都从阻塞状态变成非阻塞状态。 Kazoo实现是：直接往一个节点上通过exists添加watch, 添加watch之后，直接用event阻塞住自己。只有当watch的节点被删除时，event才会释放，主线程从阻塞变成非阻塞。
 
 
-
-* DoubleBarrier 
+#### DoubleBarrier 
 
   双层屏障。场景是：必须等所有的Client都加入进来， 才放开阻塞，否则早加入进来的Client会被阻塞住。必须等到所有的Client都离开了，才放开阻塞，否则早离开的Client会被阻塞住。
  
-* Party
-* Queue
-* Partitioner
+#### Party
+  
+  Party就是一群临时节点的集合。当创建临时节点时，就参加Party, 删除临时节点时，就离开Party。 没什么好讲的。
+
+#### Queue
+
+   分为阻塞队列和非阻塞队列： 
+
+   * 非阻塞队列实现很容易，就是一个znode下创建一些节点，按照字典序从小到大依次POP给客户端。
+   * 阻塞队列，容许并发PUT， 但是只能有一个Client在POP。 
+
+#### Partitioner
+
