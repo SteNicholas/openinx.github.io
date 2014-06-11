@@ -165,11 +165,11 @@ tags: [algorithm]
 这样一次查询时间复杂度为
 
 
-![Alt](https://github.com/openinx/openinx.github.com/blob/master/static/formula5.PNG?raw=true)
+![Alt kth1](/images/kth1.png)
 
 于是总复杂度为：
 
-![Alt](https://github.com/openinx/openinx.github.com/blob/master/static/formula6.PNG?raw=true)
+![Alt kth2](/images/kth2.png)
 
 当然，这里计算量是比较大的，实际写了个程序也是超时的。但当M比较小时，也未尝不是一种好的选择（或者当开阔思路吧，但对问题四却正好打个擦边球）。
  
@@ -178,8 +178,7 @@ tags: [algorithm]
 
 划分树应该是解决这道题复杂度最低的方法，复杂度为
 
-
-![Alt](https://github.com/openinx/openinx.github.com/blob/master/static/formula7.PNG?raw=true)
+![Alt kth3](/images/kth3.png)
 
 思想其实很简答，用线段树把整个序列分成若干区间。建树时，对区间[l,r]划分：选择该区间的中位数value（注意：可以先用快速排序对原来序列排个序，于是可以速度得到中位数），将小于等于value的不超过mid-l+1个数划分到[l,mid]区间，其余划分到[mid+1,r]区间，用一个数组把每层划分后的序列保存起来。
 
@@ -232,7 +231,7 @@ tags: [algorithm]
 
 于是，整个算法复杂度为：
 
-![Alt](https://github.com/openinx/openinx.github.com/blob/master/static/formula8.PNG?raw=true)
+![Alt kth4](/images/kth4.png)
 
 + 总结：
 
@@ -279,7 +278,7 @@ tags: [algorithm]
 对操作一，二分答案，设当前测试值为mid , 先统计两端零散块，`O(2*sqrt(N))` 。对中间完整块，每块二分查找，总复杂度为：
 
 
-![Alt](https://github.com/openinx/openinx.github.com/blob/master/static/formula4.PNG?raw=true)
+![Alt kth5](/images/kth5.png)
 
 
 + 线段树+平衡二叉树
@@ -289,17 +288,18 @@ tags: [algorithm]
 
 对操作二，依次更新从跟区间到叶子节点区间的平衡树即可（先删除a[i],在插入T），考虑复杂度，第一层规模为N，第二层规模为N/2，第k层规模为 N/2^k 。进行依次操作二的复杂度为： 
 
-![Alt](https://github.com/openinx/openinx.github.com/blob/master/static/formula1.PNG?raw=true)
+
+![Alt kth6](/images/kth6.png)
 
 这里 K = [logN]
 
 对操作一：询问区间被划分为不超过[logN]个线段树节点之并，每次区间查找上界为logN 。所以，对每个测试值mid , 耗时(logN)^2 , 故查询一次的复杂度为：
 
-![Alt](https://github.com/openinx/openinx.github.com/blob/master/static/formula2.PNG?raw=true)
+![Alt kth7](/images/kth7.png)
 
 总复杂度为 
 
-![Alt](https://github.com/openinx/openinx.github.com/blob/master/static/formula3.PNG?raw=true)
+![Alt kth8](/images/kth8.png)
 
 + 练习
 
