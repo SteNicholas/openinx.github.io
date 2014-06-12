@@ -33,6 +33,10 @@ _鄙人一个毕业生，在公司混了两年，活脱脱混成一个傻逼。�
   我从2012年12月份的样子开始玩Openstack, 但一直局限在nova, keystone, glance, trove这四个组件。记的我们刚开始玩的时候，都还是F版本， 现在都到H版本了。 再深入玩玩H版本的其他各个组件。
 
 
+* [Docker](https://github.com/dotcloud/docker)
+
+  玩过，听过分享。
+
 * [saltstack](https://github.com/saltstack/salt)
 
 
@@ -41,12 +45,10 @@ _鄙人一个毕业生，在公司混了两年，活脱脱混成一个傻逼。�
 
 * mysql相关的东东： 
 
-
   * youtube用GO开发的 [vitess](https://github.com/youtube/vitess.git)
   * 淘宝的[cobar](https://github.com/alibaba/cobar.git)
   * 最近官方新出的 [mysql-fabric](http://dev.mysql.com/doc/mysql-utilities/1.4/en/fabric.html)
   * Twitter的 [gizzard](https://github.com/twitter/gizzard)
-
 
 * 参加过一个《数据库引擎开发》的课程，当时视频看了2/3, 好像还没看完。
 
