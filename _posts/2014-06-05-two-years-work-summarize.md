@@ -46,9 +46,11 @@ _鄙人一个毕业生，在公司混了两年，活脱脱混成一个傻逼。�
 * mysql相关的东东： 
 
   * youtube用GO开发的 [vitess](https://github.com/youtube/vitess.git)
-  * 淘宝的[cobar](https://github.com/alibaba/cobar.git)
+  * 淘宝的[cobar](https://github.com/alibaba/cobar.git) & [TDDL](https://github.com/alibaba/tb_tddl.git)
   * 最近官方新出的 [mysql-fabric](http://dev.mysql.com/doc/mysql-utilities/1.4/en/fabric.html)
   * Twitter的 [gizzard](https://github.com/twitter/gizzard)
+  * QiHoo360 的 [Atlas](https://github.com/Qihoo360/Atlas.git)
+  * [amoeba](http://sourceforge.net/projects/amoeba/files/Amoeba%20for%20mysql/)
 
 * 参加过一个《数据库引擎开发》的课程，当时视频看了2/3, 好像还没看完。
 
