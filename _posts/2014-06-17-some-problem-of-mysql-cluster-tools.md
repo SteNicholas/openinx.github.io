@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "MySQL Cluster工具关注的一些问题"
+title: "MySQL中间件关注的一些问题"
 description: ""
 category:
 tags: [mysql, mysql-cluster]
