@@ -49,12 +49,15 @@ Google 搜了一大圈，大概有这么些公司或者产品在做以上的相�
 * [amoeba](http://sourceforge.net/projects/amoeba/files/Amoeba%20for%20mysql/)
 
 * [Trove](https://wiki.openstack.org/Trove)是Openstack下的一个DAAS(Database As A Service)项目。它依赖了Openstack里面的很多服务组件和代码包：
+
    * Keystone -- 权限认证服务
    * Nova     -- Iaas层支撑
    * Glance   -- 数据库Server的Image服务
    * Swift    -- 对象存储服务（存放Snapshot和Logs等大文件数据，用于数据备份和恢复）
    * Cinder   -- 块设备服务（远程挂载块设备形式完成数据备份和数据恢复)
-  目前能提供的功能有： 
+
+目前能提供的功能有： 
+
    * RestFullAPI操作数据库实例的创建，配置，备份，恢复，监控
    * 高可用
 
@@ -62,14 +65,17 @@ Google 搜了一大圈，大概有这么些公司或者产品在做以上的相�
    基于OpenStack的DaaS产品[Trove](https://wiki.openstack.org/Trove)上做二次开发之类的。他们公司的产品就是一个类Trove的项目叫做[Tesora](https://github.com/Tesora/tesora-trove). 
 
 *  [scalebase](http://www.scalebase.com/) 就是一个卖MySQL中间件的公司。 他们卖的商业版本中间件号称对客户端做到100%的透明，主要支持：
+
     * 数据库实例的scal-out
     * 事务的两阶段提交回滚
     * ACID
     * 跨分片JOIN, Order by, Group By, Limit和聚合。
     * auto-failover & auto-swithover
-   但是按照[官方功能表](http://www.scalebase.com/products/benefits/)来看的话，基本上MySQL分布式中间件该有的问题，它都解决了。不知道是不是真的?
+
+   按照[官方功能表](http://www.scalebase.com/products/benefits/)来看的话，基本上MySQL分布式中间件该有的问题，它都解决了。不知道是不是真的?
 
 * [scalearc](http://www.scalearc.com/product/) 不是走的scalebase那套完美中间间方案。 更像是一个MYSQL集成管理工具。 它可以做： 
+
     * auto-failover
     * 查询缓存
     * 数据库层动态负载均衡。
