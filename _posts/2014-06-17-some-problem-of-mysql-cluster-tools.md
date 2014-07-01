@@ -48,18 +48,13 @@ Google 搜了一大圈，大概有这么些公司或者产品在做以上的相�
 
 * [amoeba](http://sourceforge.net/projects/amoeba/files/Amoeba%20for%20mysql/)
 
-* [Trove](https://wiki.openstack.org/Trove)是Openstack下的一个DAAS(Database As A Service)项目。它依赖了Openstack里面的很多服务组件和代码包：
+* [Trove](https://wiki.openstack.org/Trove)是Openstack下的一个DAAS(Database As A Service)项目。目前提供的功能有： RestFullAPI操作高可用的数据库实例的创建，配置，备份，恢复，监控。 它依赖了Openstack里面的很多服务组件和代码包：
 
    * Keystone -- 权限认证服务
    * Nova     -- Iaas层支撑
    * Glance   -- 数据库Server的Image服务
    * Swift    -- 对象存储服务（存放Snapshot和Logs等大文件数据，用于数据备份和恢复）
    * Cinder   -- 块设备服务（远程挂载块设备形式完成数据备份和数据恢复)
-
-目前能提供的功能有： 
-
-   * RestFullAPI操作数据库实例的创建，配置，备份，恢复，监控
-   * 高可用
 
 *  [parelastic](http://www.parelastic.com/)
    基于OpenStack的DaaS产品[Trove](https://wiki.openstack.org/Trove)上做二次开发之类的。他们公司的产品就是一个类Trove的项目叫做[Tesora](https://github.com/Tesora/tesora-trove). 
