@@ -6,7 +6,7 @@ category:
 tags: [ algorithm ]
 ---
 
-刷了若干天leetcode, 总算弄完了。
+刷了若干天leetcode, 总算弄完了。代码在[这里](https://github.com/openinx/algorithm-solution/tree/master/leetcode)。
 
 * [Reverse Words in a String](https://oj.leetcode.com/problems/reverse-words-in-a-string/)
 模拟 字符串
