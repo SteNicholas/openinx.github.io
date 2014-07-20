@@ -6,6 +6,8 @@ category:
 tags: [ algorithm ]
 ---
 
+刷了若干天leetcode, 总算弄完了。
+
 * [Reverse Words in a String](https://oj.leetcode.com/problems/reverse-words-in-a-string/)
 模拟 字符串
 
@@ -175,6 +177,7 @@ else
 
 * [Convert Sorted List to Binary Search Tree ](https://oj.leetcode.com/problems/convert-sorted-list-to-binary-search-tree/)
 链表转成高度平衡的二叉树，直接便利链表找中间点，然后递归构造BST，复杂度O(N*logN). 但有更好的写法, 复杂度O(N)： 
+
 ```cpp
 TreeNode* buildTree(ListNode * &list, int start, int end){
 	if(start > end ) return NULL ;
@@ -316,14 +319,12 @@ for( i = 1 ; i<=n; ++i)
 * [Wildcard Matching](https://oj.leetcode.com/problems/wildcard-matching/)
 KMP + 贪心 假设*的个数为K, 复杂度O(K*N) 其实写个_看毛片算法_解这个问题真的是坑无数。比如最后一个'hi'和'*?'这种情况，‘*’不能贪婪匹配'hi'。 归纳起来，最后一个'*'是不能贪婪的，只要求'*'之后的字串能严格和主串的最后一段匹配即可。关于这个问题的更详细的各种解法，可参考[一个老外数十年的辛勤劳作](http://xoomer.virgilio.it/acantato/dev/wildcard/wildmatch.html)。 
 
-* [Pow(x, n)](https://oj.leetcode.com/problems/powx-n/)二分求P^n值。值得注意的是，当int n = -2147483648 时，调用函数abs(n) = 2147483648时，会导致INT溢出。 _这是调用int类型的abs函数道不尽说不完的坑啊。_
+* [Pow(x, n)](https://oj.leetcode.com/problems/powx-n/)二分求`P^n`值。值得注意的是，当int n = -2147483648 时，调用函数abs(n) = 2147483648时，会导致INT溢出。 _这是调用int类型的abs函数道不尽说不完的坑啊。_
 
 * [Container With Most Water](https://oj.leetcode.com/problems/container-with-most-water/)
 DP ： 关键在于慧眼发现这样一个性质： 假设`3 5 2 4 3 5`这个序列, 两个端点，3和5。 对3来讲，最优解肯定是5，3不可能和其他的某个数达到最优解。所以3就排除掉了， 左端点右移，转化成一个较小规模的子问题了。 复杂度O(N)
 
-* [Merge k Sorted Lists](https://oj.leetcode.com/problems/merge-k-sorted-lists/)两种方法： 
-1. 两两合并复杂度为O(K*N), 假设K为要合并的链表的个数，N为K个链表的所有元素之和。
-2. 用一个元素个数为K的堆维护K个链表。复杂度为O(N*logK)。
+* [Merge k Sorted Lists](https://oj.leetcode.com/problems/merge-k-sorted-lists/)两种方法： 两两合并复杂度为O(K*N), 假设K为要合并的链表的个数，N为K个链表的所有元素之和;用一个元素个数为K的堆维护K个链表。复杂度为O(N*logK)。
 
 纠结了好一会儿堆的cmp重载。C++默认的堆是最大堆。
 
@@ -478,7 +479,7 @@ double findKth(int a[], int m, int b[], int n, int k){
 
 * [Regular Expression Matching ](https://oj.leetcode.com/problems/regular-expression-matching/)没找到什么线性算法。 暴力算法来源于leetcode，假设`s=abbbbbbbbbbbbbbbbbb`, `t=ab*cd`这样的话。可能会出现如下情况：当有一个`*`字符时，最坏的情况下会达到O（n*m),这还的用KMP算法去做字串匹配. 当多个 `\*`字符时，就是`\*`的指数级复杂度了。
 
-```
+```cpp
 s = abbbbbbbbbbbbbbbbbb
      ^
 t = acd
@@ -494,8 +495,6 @@ t = a  cd
 s = abbbbbbbbbbbbbbbbbb
         ^
 t = a   cd
-
-....
 ```
 
 
@@ -510,20 +509,17 @@ h[n] = 2 * sum( h[i] * h[n-i] ) (1<= i < n )
 
 假设一个序列 , 其中 8 和 14 被误交换了。 如图， 导致序列会有两个`>` , 记录第1个`>`的前驱和第2个`>`的后继两个指针，交换即可.
 
-```
+```cpp
 # noraml
-
   < < <  <  <  <
 1 5 8 10 11 14 23 
 
 # missing swap
-
   < <  >  <  > < 
 1 5 14 10 11 8 23
     ^        ^
 
 # after
-
   < <  >  <  > < 
 1 5 8 10 11 14 23
     ^        ^
