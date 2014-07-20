@@ -17,26 +17,28 @@ tags: [algorithm]
 
 ### 举个简单客户端编程的例子
 
-    #!/usr/bin/python
-    import logging
-    from time import sleep
-    from kazoo.client import KazooClient
-    
-    # print log to console
-    logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
-    
-    zk = KazooClient('127.0.0.1:2181')
-    zk.start()
-    
-    def children_callback(children):
-        print '****' , children
-    
-    children = zk.get_children('/zookeeper', children_callback)
-    
-    zk.create('/zookeeper/goodboy')
-    #zk.delete('/zookeeper/goodboy')
-    
-    while True: sleep(1)
+```python
+#!/usr/bin/python
+import logging
+from time import sleep
+from kazoo.client import KazooClient
+
+# print log to console
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+
+zk = KazooClient('127.0.0.1:2181')
+zk.start()
+
+def children_callback(children):
+    print '****' , children
+
+children = zk.get_children('/zookeeper', children_callback)
+
+zk.create('/zookeeper/goodboy')
+#zk.delete('/zookeeper/goodboy')
+
+while True: sleep(1)
+```
 
 
 ###  Kazoo实现异步的大致思路

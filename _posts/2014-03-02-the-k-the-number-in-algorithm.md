@@ -33,21 +33,23 @@ tags: [algorithm]
 + 代码：
 
 
-        int qs(int *a , int l , int r , int k){
-            if(l == r)  return a[l] ;
-            int i = l , j = r , x = a[(l+r)>>1] , temp ; 
-            do{
-                while(a[i] < x) ++ i ; 
-                while(a[j] > x) -- j ; 
-                if(i <= j){
-                    temp = a[i] ;  a[i] = a[j] ,  a[j] = temp ;  
-                    i++ ;  j-- ; 
-                }
-            }while(i<=j) ;
-            if(k <= j)  return qs(a , l , j , k);
-            if(k >= i)  return qs(a , i , r , k);
-            return x ;
+```c
+int qs(int *a , int l , int r , int k){
+    if(l == r)  return a[l] ;
+    int i = l , j = r , x = a[(l+r)>>1] , temp ; 
+    do{
+        while(a[i] < x) ++ i ; 
+        while(a[j] > x) -- j ; 
+        if(i <= j){
+            temp = a[i] ;  a[i] = a[j] ,  a[j] = temp ;  
+            i++ ;  j-- ; 
         }
+    }while(i<=j) ;
+    if(k <= j)  return qs(a , l , j , k);
+    if(k >= i)  return qs(a , i , r , k);
+    return x ;
+}
+```
 
 
 + 练习
@@ -87,11 +89,13 @@ tags: [algorithm]
 + 代码
 
 
-        int getsum(int x ){
-            int res = 0 ;
-            for( ; x>0 ; x-=lowbit(x) )  res += arr[x] ;
-            return res ;  
-        }
+```c
+int getsum(int x ){
+    int res = 0 ;
+    for( ; x>0 ; x-=lowbit(x) )  res += arr[x] ;
+    return res ;  
+}
+```
 
 
 
@@ -100,15 +104,17 @@ tags: [algorithm]
 + 代码
 
 
-        int getkth(int k){
-                int ans = 0 , cnt = 0 , i ;
-                for(i = 20 ; i>=0 ; --i){
-                        ans += 1<<i ;
-                        if(ans>=maxn||cnt+c[ans]>=k) ans-=1<<i ;
-                        else cnt +=c[ans] ;      
-                }
-                return ans+1 ; 
-            }
+```c
+int getkth(int k){
+        int ans = 0 , cnt = 0 , i ;
+        for(i = 20 ; i>=0 ; --i){
+                ans += 1<<i ;
+                if(ans>=maxn||cnt+c[ans]>=k) ans-=1<<i ;
+                else cnt +=c[ans] ;      
+        }
+        return ans+1 ; 
+    }
+```
 
 
 复杂度：自然就比第一种少了一个阶。`O(M*logN)`。
@@ -187,36 +193,38 @@ tags: [algorithm]
 
 + 代码 
 
-        void build(lld d ,lld l , lld r ){
-            if(l == r)  return  ;
-            lld i , mid = (l+r)>>1 , j=l , k=mid+1  ;
-            for(i = l ; i <= r ; ++ i){
-                s[d][i] = s[d][i-1] ; 
-                if(tr[d][i] <= mid){
-                    s[d][i]++ ;  
-                    tr[d+1][j++] = tr[d][i]; 
-                }else{
-                    tr[d+1][k++] = tr[d][i];
-                }
-            }
-            build(d+1 ,l , mid);
-            build(d+1 , mid+1 , r);
+```c
+void build(lld d ,lld l , lld r ){
+    if(l == r)  return  ;
+    lld i , mid = (l+r)>>1 , j=l , k=mid+1  ;
+    for(i = l ; i <= r ; ++ i){
+        s[d][i] = s[d][i-1] ; 
+        if(tr[d][i] <= mid){
+            s[d][i]++ ;  
+            tr[d+1][j++] = tr[d][i]; 
+        }else{
+            tr[d+1][k++] = tr[d][i];
         }
+    }
+    build(d+1 ,l , mid);
+    build(d+1 , mid+1 , r);
+}
 
-        lld getkth(lld d ,lld lp ,lld rp , lld l , lld r , lld k){
-            if(lp == rp )  return tr[d][lp] ;
-            lld mid = (lp + rp)>>1 ; 
-            if(k<=s[d][r]-s[d][l-1])
-                return getkth(d+1 ,lp , mid , 
-                    lp+s[d][l-1]-s[d][lp-1] ,
-                    lp+s[d][r]-s[d][lp-1]-1 ,
-                    k);
-            else 
-                return getkth(d+1 ,mid+1 , rp ,
-                    mid+1+(l-lp)-(s[d][l-1]-s[d][lp-1]) , 
-                    mid+(r-lp+1)-(s[d][r]-s[d][lp-1]) ,
-                    k-(s[d][r]-s[d][l-1]) );
-        }
+lld getkth(lld d ,lld lp ,lld rp , lld l , lld r , lld k){
+    if(lp == rp )  return tr[d][lp] ;
+    lld mid = (lp + rp)>>1 ; 
+    if(k<=s[d][r]-s[d][l-1])
+        return getkth(d+1 ,lp , mid , 
+            lp+s[d][l-1]-s[d][lp-1] ,
+            lp+s[d][r]-s[d][lp-1]-1 ,
+            k);
+    else 
+        return getkth(d+1 ,mid+1 , rp ,
+            mid+1+(l-lp)-(s[d][l-1]-s[d][lp-1]) , 
+            mid+(r-lp+1)-(s[d][r]-s[d][lp-1]) ,
+            k-(s[d][r]-s[d][l-1]) );
+}
+```
 
 
 + 归并树

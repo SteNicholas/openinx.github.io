@@ -29,6 +29,8 @@ redis中的dict.c中的设计思路是用两个hash表来进行进行扩容和�
 
 为了更深入的理解这个过程，先看看在dict.h中的两个结构体：
 
+
+```c
     typedef struct dictht {
         dictEntry **table;
         unsigned long size;
@@ -43,6 +45,7 @@ redis中的dict.c中的设计思路是用两个hash表来进行进行扩容和�
         int rehashidx; /* rehashing not in progress if rehashidx == -1 */
         int iterators; /* number of iterators currently running */
     } dict;
+```
 
 
 dictht指的就是上面说的桶数组，size用来表示容量，一般为2^n ，sizemask（一般为2^n-1,二进制表示为n个1）用来对哈希值取模 , used表示hash表中存储了多少个元素。
