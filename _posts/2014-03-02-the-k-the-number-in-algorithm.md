@@ -33,7 +33,7 @@ tags: [algorithm]
 + 代码：
 
 
-```c
+```cpp
 int qs(int *a , int l , int r , int k){
     if(l == r)  return a[l] ;
     int i = l , j = r , x = a[(l+r)>>1] , temp ; 
@@ -89,7 +89,7 @@ int qs(int *a , int l , int r , int k){
 + 代码
 
 
-```c
+```cpp
 int getsum(int x ){
     int res = 0 ;
     for( ; x>0 ; x-=lowbit(x) )  res += arr[x] ;
@@ -104,7 +104,7 @@ int getsum(int x ){
 + 代码
 
 
-```c
+```cpp
 int getkth(int k){
         int ans = 0 , cnt = 0 , i ;
         for(i = 20 ; i>=0 ; --i){
@@ -193,7 +193,7 @@ int getkth(int k){
 
 + 代码 
 
-```c
+```cpp
 void build(lld d ,lld l , lld r ){
     if(l == r)  return  ;
     lld i , mid = (l+r)>>1 , j=l , k=mid+1  ;

@@ -30,21 +30,21 @@ redis中的dict.c中的设计思路是用两个hash表来进行进行扩容和�
 为了更深入的理解这个过程，先看看在dict.h中的两个结构体：
 
 
-```c
-    typedef struct dictht {
-        dictEntry **table;
-        unsigned long size;
-        unsigned long sizemask;
-        unsigned long used;
-    } dictht;
+```cpp
+typedef struct dictht {
+    dictEntry **table;
+    unsigned long size;
+    unsigned long sizemask;
+    unsigned long used;
+} dictht;
 
-    typedef struct dict {
-        dictType *type;
-        void *privdata;
-        dictht ht[2];
-        int rehashidx; /* rehashing not in progress if rehashidx == -1 */
-        int iterators; /* number of iterators currently running */
-    } dict;
+typedef struct dict {
+    dictType *type;
+    void *privdata;
+    dictht ht[2];
+    int rehashidx; /* rehashing not in progress if rehashidx == -1 */
+    int iterators; /* number of iterators currently running */
+} dict;
 ```
 
 
@@ -65,35 +65,36 @@ dict表示字典，由两个桶数组组成，type是一些函数指针（哈希
  
 下面是一份精简的伪代码，通过依次插入element[1..n]这n个元素到dict来详细描述容量扩张及转移的过程：
 
+```cpp
+//初始化两个hash表
+d->h[0].size = 4 ; d->h[1].used = 0 ;  //分配四个空桶
+d->h[1].size = 0 ; d->h[1].used = 0 ;  //初始化一个空表
 
-    //初始化两个hash表
-    d->h[0].size = 4 ; d->h[1].used = 0 ;  //分配四个空桶
-    d->h[1].size = 0 ; d->h[1].used = 0 ;  //初始化一个空表
-    
-    for(i = 1 ; i <= n ; ++ i){
-        if( d->rehashidx !=-1 ){
-                    if(d->h[0]->used != 0){
-                       把 d->h[0]中一个非空桶元素转移（重新hash）到 d->h[1]中
-                       // 上一步会使得:
-                       // d->h[0]->used -= 转移的元素个数 
-                       // d->h[1]->used += 转移的元素个数 ；
-                       把 element[i] 哈希到 d->h[1]中  ;  // d->h[1]->used ++ 
-                    }else{
-                       //用桶数组1覆盖桶数组0；
-                       //赋值前要释放d->h[0]的空间，赋值后重置d->h[1])
-                       d->h[0] = d->h[1] ; 
-                       d->rehashidx = -1 ; 
-                       把element[i]哈希到d->h[0]中；// d->h[0]->used ++ ; 
-                    }
-        }else if( d->h[0]->used >= d->h[0]->size )
-                    d->h[1] = new bucket[2*d->h[0]->size ];    
-                    // d->h[0]->size 等于d->h[0]->size的2倍 
-                    把element[i]哈希到d->h[1]中 ;  // d->h[1]->used ++ 
-                    d->rehashidx = 0 ;                             
-        }else{
-                    把element[i]哈希到d->h[0]中;  // d->h[0]->used ++ 
-        }
+for(i = 1 ; i <= n ; ++ i){
+    if( d->rehashidx !=-1 ){
+                if(d->h[0]->used != 0){
+                   把 d->h[0]中一个非空桶元素转移（重新hash）到 d->h[1]中
+                   // 上一步会使得:
+                   // d->h[0]->used -= 转移的元素个数 
+                   // d->h[1]->used += 转移的元素个数 ；
+                   把 element[i] 哈希到 d->h[1]中  ;  // d->h[1]->used ++ 
+                }else{
+                   //用桶数组1覆盖桶数组0；
+                   //赋值前要释放d->h[0]的空间，赋值后重置d->h[1])
+                   d->h[0] = d->h[1] ; 
+                   d->rehashidx = -1 ; 
+                   把element[i]哈希到d->h[0]中；// d->h[0]->used ++ ; 
+                }
+    }else if( d->h[0]->used >= d->h[0]->size )
+                d->h[1] = new bucket[2*d->h[0]->size ];    
+                // d->h[0]->size 等于d->h[0]->size的2倍 
+                把element[i]哈希到d->h[1]中 ;  // d->h[1]->used ++ 
+                d->rehashidx = 0 ;                             
+    }else{
+                把element[i]哈希到d->h[0]中;  // d->h[0]->used ++ 
     }
+}
+```
 
 
 
