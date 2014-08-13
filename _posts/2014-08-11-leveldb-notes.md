@@ -22,6 +22,13 @@ tags: [ leveldb ]
 12. Minor Compaction & Major Compaction
 13. bloom filter
 
+### LevelDB/SSTable编码图详细
+
+![Alt TableFormat.png](/images/TableFormat.png)
+
+### table/block.cc
+* Block块内搜索key的方式是(iter->Seek())：在`[RestartPoint-0, RestartPoint-1, ... , RestartPoint-N]`之间用二分查找，在`[RestartPoint-(i), RestartPoint-(i+1)]`之间用线性查找.
+
 ### table/iterator.cc
 
 注册多个清理function组织成链表, 在Iterator的回收时，依次执行每个清理函数.
@@ -34,13 +41,19 @@ IteratorWrapper缓存了iterator的it->Valid(),it->Key()两个状态。当要多
 
 将N个有序迭代器合并成一个有序的迭代器，找N个中最小的值时作者用的线性查找，可用MinHeap优化，降低时间复杂度。类似于这个问题[merge-k-sorted-lists](https://oj.leetcode.com/problems/merge-k-sorted-lists/)。
 
-### LevelDB/SSTable编码图详细
+### table/table.cc
 
-![Alt TableFormat.png](/images/TableFormat.png)
+* 读取Block的时候，会将该sstable的cached_id(8Bytes) + 该block的offset(8Bytes)拼成一个16 Bytes的key,将该（key,*Block)放入到LRU-Cache里面。
+* LRU-Cache由table.Open( &options , ...)传入的 `options.block_cache` 确定，默认的情况下 `options.block_cache=NULL`。
+
+### table/builder.cc
+
+* 从 `void TableBuilder::Add(const Slice& key, const Slice& value)`实现看，实际block的size有可能比4K大一点点，而不是严格的4k. 因为是在插入(key,value)完成之后，判断当前的blockSize是否大于4K，假设大于4K就刷盘，另起一个block.
+* lgBase=11, 当block.offset在`[i*lgBase, i*lgBase+1, ... , (i+1)*lgBase-1]`这个范围的是否，该block内的所有key生成的filter为`filter-i`。
 
 ### util/arena.cc
 
-简单内存管理器，内存按照4K分配。一个个的4K块组成了整个的内存列表。提供内存对齐分配，对中间的空隙内存直接丢掉不管。
+* 简单内存管理器，内存按照4K分配。一个个的4K块组成了整个的内存列表。提供内存对齐分配，对中间的空隙内存直接丢掉不管。
 
 
 ### util/bloom.cc
