@@ -27,7 +27,8 @@ tags: [ leveldb ]
 ![Alt TableFormat.png](/images/TableFormat.png)
 
 ### table/block.cc
-* Block块内搜索key的方式是(iter->Seek())：在`[RestartPoint-0, RestartPoint-1, ... , RestartPoint-N]`之间用二分查找，在`[RestartPoint-(i), RestartPoint-(i+1)]`之间用线性查找.
+
+Block块内搜索key的方式是(iter->Seek())：在`[RestartPoint-0, RestartPoint-1, ... , RestartPoint-N]`之间用二分查找，在`[RestartPoint-(i), RestartPoint-(i+1)]`之间用线性查找.
 
 ### table/iterator.cc
 
@@ -50,6 +51,9 @@ IteratorWrapper缓存了iterator的it->Valid(),it->Key()两个状态。当要多
 
 * 从 `void TableBuilder::Add(const Slice& key, const Slice& value)`实现看，实际block的size有可能比4K大一点点，而不是严格的4k. 因为是在插入(key,value)完成之后，判断当前的blockSize是否大于4K，假设大于4K就刷盘，另起一个block.
 * lgBase=11, 当block.offset在`[i*lgBase, i*lgBase+1, ... , (i+1)*lgBase-1]`这个范围的是否，该block内的所有key生成的filter为`filter-i`。
+
+### table/two_level_iterator.cc
+用一个迭代器可以一次扫描一个SSTable里面的所有block的所有(key,value)对. 这样的迭代器称之为`two_level_iterator`
 
 ### util/arena.cc
 
