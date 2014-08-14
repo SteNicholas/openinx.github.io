@@ -26,6 +26,36 @@ tags: [ leveldb ]
 
 ![Alt TableFormat.png](/images/TableFormat.png)
 
+### db/build.cc
+将一个串有序的key-Value编码写入到TableFile里，并且执行fsync。
+
+### db/dbformat.cc & db/dbformat.h
+* namespace config定义了一些常量  
+leveldb的kNumLevels=7.  
+当Level-0的sstable的个数大于等于kL0_CompactionTrigger(4)时，则Level-0需要做compact了。  
+当Level-0的sstable的个数到达kL0_SlowdownWritesTrigger(8)时，则LevelDB会限制写速率.  
+当Level-0的sstable的个数到达kL0_StopWritesTrigger(12)时，则LevelDB会停写。  
+* ParsedInternalKey & InternalKey & LookupKey  
+ParsedInternalKey由UserKey,SequenceNumber,ValueType三个成员组成，编码成字符串之后就是InternalKey的rep_成员.  
+InternalKey := [UserKey][SequenceNumber(56Bit)][ValueType(8Bit)]  
+ValueType := kTypeDeletion | kTypeValue   
+LookupKey由start,kstart,end_三个组成。  
+
+### db/db_impl.cc & db/db_impl.h
+
+### db/version_set.h & db/version_set.cc
+* level-0的sstable大小没有限制。level-N(N>0)的sstable的最大空间不能超过kTargetFileSize(2M). 且第i(i>0)层的sstable的个数不能超过`10^i`, 所以第1层到第kNumLevel-1(6)层，总共能容纳的数据量为
+
+```cpp
+(10+10^2+...+10^6) * 2 * 1024 / (1024 * 1024 * 1024) = 2.119G
+```
+
+* Version::RecordReadSample ???
+* VersionEdit ????  VersionEdit.compact_pointers_ 与 VersionSet.compact_pointer_
+* Version::PickLevelForMemTableOutput  
+  确定memtable dump到哪一层。假设与当前level有overlap,那么直接放到当前level ; 否则看与level+1是否有overlap，有就放level+1，没有就看level+2的overlap的files的总bytes数是否超过kMaxGrandParentOverlapBytes(2M),假设超过kMaxGrandParentOverlapBytes(2M)就放level+1算了，因为放level+2的话，要合并一大片数据IO划不来。
+* Version.file_to_compact_ & Version.file_to_compact_level_ & Version.compaction_score_ & Version.compaction_level_ ???? 
+
 ### table/block.cc
 
 Block块内搜索key的方式是(iter->Seek())：在`[RestartPoint-0, RestartPoint-1, ... , RestartPoint-N]`之间用二分查找，在`[RestartPoint-(i), RestartPoint-(i+1)]`之间用线性查找.
@@ -45,7 +75,7 @@ IteratorWrapper缓存了iterator的it->Valid(),it->Key()两个状态。当要多
 ### table/table.cc
 
 * 读取Block的时候，会将该sstable的cached_id(8Bytes) + 该block的offset(8Bytes)拼成一个16 Bytes的key,将该（key,*Block)放入到LRU-Cache里面。
-* LRU-Cache由table.Open( &options , ...)传入的 `options.block_cache` 确定，默认的情况下 `options.block_cache=NULL`。
+* LRU-Cache由table.Open( &options , ...)传入的 `options.block_cache` 确定，默认的情况下 `options.block_cache=NewLRUCache(8 << 20)`。
 
 ### table/builder.cc
 
@@ -53,7 +83,7 @@ IteratorWrapper缓存了iterator的it->Valid(),it->Key()两个状态。当要多
 * lgBase=11, 当block.offset在`[i*lgBase, i*lgBase+1, ... , (i+1)*lgBase-1]`这个范围的是否，该block内的所有key生成的filter为`filter-i`。
 
 ### table/two_level_iterator.cc
-用一个迭代器可以一次扫描一个SSTable里面的所有block的所有(key,value)对. 这样的迭代器称之为`two_level_iterator`
+用一个迭代器可以依次扫描一层Level的所有SSTable里面的所有block的所有(key,value)对. 这样的迭代器称之为`two_level_iterator`
 
 ### util/arena.cc
 
