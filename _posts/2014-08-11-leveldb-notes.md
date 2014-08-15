@@ -42,19 +42,23 @@ ValueType := kTypeDeletion | kTypeValue
 LookupKey由start,kstart,end_三个组成。  
 
 ### db/db_impl.cc & db/db_impl.h
+* tablecache = options.max_open_files(1000) - kNumNonTableCacheFiles(10)= 990 * 2M. 
+* 查看当前LevelDB中LSM树每个Level的sstable的数量为多少 : `tail -f LOG | grep 'compacted to'`
+* DBImpl::NewIterator 在做Next的时候，如何过滤掉ValueType=KDeletion的key,因为这些key在高层是kDeletion的，但是在底层还是存在的，那么有可能在底层将key取出来？ 
+* 
 
 ### db/version_set.h & db/version_set.cc
-* level-0的sstable大小没有限制。level-N(N>0)的sstable的最大空间不能超过kTargetFileSize(2M). 且第i(i>0)层的sstable的个数不能超过`10^i`, 所以第1层到第kNumLevel-1(6)层，总共能容纳的数据量为
-
-```cpp
-(10+10^2+...+10^6) * 2 * 1024 / (1024 * 1024 * 1024) = 2.119G
-```
+* level-0的sstable大小没有限制。level-N(N>0)的sstable的最大空间不能超过kTargetFileSize(2M). 且第i(i>0)层的sstable的个数不能超过`10^i`, 所以第1层到第kNumLevel-1(6)层，总共能容纳的数据量为`(10+10^2+...+10^6) * 2 / 1024 = 4238G`
 
 * Version::RecordReadSample ???
 * VersionEdit ????  VersionEdit.compact_pointers_ 与 VersionSet.compact_pointer_
-* Version::PickLevelForMemTableOutput  
+* Version::PickLevelForMemTableOutput 
   确定memtable dump到哪一层。假设与当前level有overlap,那么直接放到当前level ; 否则看与level+1是否有overlap，有就放level+1，没有就看level+2的overlap的files的总bytes数是否超过kMaxGrandParentOverlapBytes(2M),假设超过kMaxGrandParentOverlapBytes(2M)就放level+1算了，因为放level+2的话，要合并一大片数据IO划不来。
 * Version.file_to_compact_ & Version.file_to_compact_level_ & Version.compaction_score_ & Version.compaction_level_ ???? 
+* VersionSet::Builder.Apply(VersionEdit* edit) ??? 
+* VersionSet::LogAndApply(VersionEdit* edit, port::Mutex* mu)??? 
+* Snapshot
+
 
 ### table/block.cc
 
