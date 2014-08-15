@@ -51,12 +51,45 @@ d. LookupKey由start,kstart,end_三个组成。
 * 查看当前LevelDB中LSM树每个Level的sstable的数量为多少 : `tail -f LOG | grep 'compacted to'`
 * DBImpl::NewIterator 在做Next的时候，如何过滤掉ValueType=KDeletion的key,因为这些key在高层是kDeletion的，但是在底层还是存在的，那么有可能在底层将key取出来？ 
 * DBImpl在方法MakeRoomForWrite中将imm的log删掉了？ 没删，只是把imm的log文件fclose了。
+* `DBImpl::Recover(VersionEdit* edit)`  
+a. 加文件锁  
+b. 读出CURRENT文件的manifest文件名，若没有CURRENT就按照`create_if_missing`决定是否新创。  
+c. 依次从manifest读出一条edit, 并应用到当前的versionSet. 即`builder.Apply(edit)`。将当前versionSet的current_更新为所有edit应用后得到的v，即`versionSet.Recover()`.  
+d. 将当前活跃的log文件依次应用到memtable,即`DBImpl::RecoverLogFile`:  
+
+*  `DB::Open()`  
+a. Recover 得到一个edit
+b. 应用edit并更新当前版本LogAndApply.  
+c. DeleteObsoleteFiles  
+d. MaybeScheduleCompaction检查是否需要Compact.  
+
+* `DBImpl::WriteLevel0Table(MemTable* mem, VersionEdit* edit,Version* base)`  
+a. 用mem的迭代器将mem dump成一个sstable文件。  
+b. 按照PickLevelForMemTableOutput()策略返回sstable添加的level.  
+c. 将edit对应的level加上该sstable,返回edit.  
+
+* `DBImpl::CompactMemTable()`  
+a. WriteLevel0Table(imm, &edit, base);  
+b. LogAndApply(&edit);  
+c. DeleteObsoleteFiles()  
+
+* 有以下几种情况会触发MaybeScheduleCompaction():  
+a. Get() 当mem和imm都没有找到key,`current_`里第一次seek的sstable(我认为也可用用第2次或第3次吧)的allowed_seek用光的时候，需要触发MaybeScheduleCompaction.  
+b. Write() 调用`MakeRoomForWrite`。当imm表dump到磁盘完成(imm=NULL,当imm为NULL时，说明versionSet已经维护好了prevLogNumer)，且mem表占用字节数超过了`write_buffer_size`时，需要将mem转成imm,然后新开一个mem,最后执行MaybeScheduleCompaction。  
+c. 当一次compaction完成之后, 在某一层产生了很多sstable,这样会继续MaybeScheduleCompaction.  
+
+* `DBImpl::BackgroundCompaction()`  
+a. `versionSet.PickCompaction()` 或者`manual_compaction_`。  
+b. 当compaction与下层leve+1没有overlap，且与level+2的file的字节总数不超过20M时，直接把sstable放level+1层。这叫做`TrivialMove`,无关紧要的移动。同时维护edit.  
+c. 当不是`TrivialMove`时，就做`DoCompactionWork`.  
+
+* `DoCompactionWork ????`  
 
 ### db/version_set.h & db/version_set.cc
-* level-0的sstable大小没有限制。level-N(N>0)的sstable的最大空间不能超过kTargetFileSize(2M). 且第i(i>0)层的sstable的个数不能超过`10^i`, 所以第1层到第kNumLevel-1(6)层，总共能容纳的数据量为`(10+10^2+...+10^6) * 2 / 1024 = 4238G`
+* level-0的sstable大小不能超过`options_.write_buffer_size`。level-N(N>0)的sstable的最大空间不能超过kTargetFileSize(2M). 且第i(i>0)层的sstable的个数不能超过`10^i`, 所以第1层到第kNumLevel-1(6)层，总共能容纳的数据量为`(10+10^2+...+10^6) * 2 / 1024 = 4238G`
 
 * `Version::PickLevelForMemTableOutput`  
-  确定memtable dump到哪一层。假设与当前level有overlap,那么直接放到当前level ; 否则看与level+1是否有overlap，有就放level+1，没有就看level+2的overlap的files的总bytes数是否超过kMaxGrandParentOverlapBytes(2M),假设超过kMaxGrandParentOverlapBytes(2M)就放level+1算了，因为放level+2的话，要合并一大片数据IO划不来。
+  确定memtable dump到哪一层。假设与当前level有overlap,那么直接放到当前level ; 否则看与level+1是否有overlap，有就放level+1，没有就看level+2的overlap的files的总bytes数是否超过kMaxGrandParentOverlapBytes(2M),假设超过kMaxGrandParentOverlapBytes(20M)就放level+1算了，因为放level+2的话，要合并一大片数据IO划不来。
 * Version.file_to_compact_ & Version.file_to_compact_level_ & Version.compaction_score_ & Version.compaction_level_ ???? 
 * VersionSet::Builder有三个成员, 其中base_是一个全量，levels是一个增量（全量基础上要删除的文件和要新增的文件）。   
 
@@ -76,8 +109,8 @@ c. 将edit记日志到manifest文件， 初次记manifest之前，会先写全�
 d. 更新当前版本`current_`为v, 并将v加入版本维护队列队尾,即AppendVersion(v).
 
 * `Compaction* VersionSet::PickCompaction()`  
-a. 当level层的`compaction_score`超过1时，选择该层第一个 `largest>compact_pointer_[level]`的sstable去做compaction；
-b. 当level层的某个sstable的allowed_seeks用光时，选择该sstable去做compation.
+a. 当level层的`compaction_score`超过1时，选择该层第一个 `largest>compact_pointer_[level]`的sstable去做compaction；  
+b. 当level层的某个sstable的allowed_seeks用光时，选择该sstable去做compation.  
 
 * `VersionSet::SetupOtherInputs(Compaction* c)`  
 a. 将c即将合并的level层sstable进行一次扩展，但是扩展后，必须满足： level层的sstable数据量之和 + (level+1)层的sstable数据量之和  <= kExpandedCompactionByteSizeLimit(25*kTargetFileSize=50M). 这样做的好处是让一次compaction合并不多不少的数据。  
