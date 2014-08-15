@@ -55,8 +55,6 @@ d. LookupKey由start,kstart,end_三个组成。
 ### db/version_set.h & db/version_set.cc
 * level-0的sstable大小没有限制。level-N(N>0)的sstable的最大空间不能超过kTargetFileSize(2M). 且第i(i>0)层的sstable的个数不能超过`10^i`, 所以第1层到第kNumLevel-1(6)层，总共能容纳的数据量为`(10+10^2+...+10^6) * 2 / 1024 = 4238G`
 
-* Version::RecordReadSample ???
-* VersionEdit ????  VersionEdit.compact_pointers_ 与 VersionSet.compact_pointer_
 * `Version::PickLevelForMemTableOutput`  
   确定memtable dump到哪一层。假设与当前level有overlap,那么直接放到当前level ; 否则看与level+1是否有overlap，有就放level+1，没有就看level+2的overlap的files的总bytes数是否超过kMaxGrandParentOverlapBytes(2M),假设超过kMaxGrandParentOverlapBytes(2M)就放level+1算了，因为放level+2的话，要合并一大片数据IO划不来。
 * Version.file_to_compact_ & Version.file_to_compact_level_ & Version.compaction_score_ & Version.compaction_level_ ???? 
@@ -76,13 +74,25 @@ a. 对VersionSet的当前版本执行edit增量，得到更新后的版本v
 b. 更新v的`compaction_score`，即`Finalize(v)`  
 c. 将edit记日志到manifest文件， 初次记manifest之前，会先写全量到manifest.  
 d. 更新当前版本`current_`为v, 并将v加入版本维护队列队尾,即AppendVersion(v).
+
 * `Compaction* VersionSet::PickCompaction()`  
 a. 当level层的`compaction_score`超过1时，选择该层第一个 `largest>compact_pointer_[level]`的sstable去做compaction；
 b. 当level层的某个sstable的allowed_seeks用光时，选择该sstable去做compation.
 
+* `VersionSet::SetupOtherInputs(Compaction* c)`  
+a. 将c即将合并的level层sstable进行一次扩展，但是扩展后，必须满足： level层的sstable数据量之和 + (level+1)层的sstable数据量之和  <= kExpandedCompactionByteSizeLimit(25*kTargetFileSize=50M). 这样做的好处是让一次compaction合并不多不少的数据。  
+b. `compact_pointer_[level]`意义： 上次在level层参与compaction最大的key.  
 
-* Snapshot
+* `Compaction* VersionSet::CompactRange(int level,const InternalKey* begin,const InternalKey* end)`  
+a. 拿到在level层，与[begin,end]区间overlap的sstable列表。  
+b. 当选取sstable列表的一小段，保证选的这端sstable字节数之和不超过`MaxFileSizeForLevel(level)`.   
+c. 按照`SetupOtherInputs`方式拓展。  
 
+* `Compaction::IsBaseLevelForKey(const Slice& user_key)`  
+如果`user_key`在`i(i>=level+2)`层落在了`level_ptrs_[i]`之后的某个sstable的range内，返回false, 否则true.
+
+* `Compaction::ShouldStopBefore(const Slice& internal_key)`  
+当internal_key与level+2层的overlap的sstable的字节数之和超过kMaxGrandParentOverlapBytes(10*kTargetFileSize=20M)返回true,否则返回false.
 
 ### table/block.cc
 
