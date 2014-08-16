@@ -83,7 +83,8 @@ a. `versionSet.PickCompaction()` 或者`manual_compaction_`。
 b. 当compaction与下层leve+1没有overlap，且与level+2的file的字节总数不超过20M时，直接把sstable放level+1层。这叫做`TrivialMove`,无关紧要的移动。同时维护edit.  
 c. 当不是`TrivialMove`时，就做`DoCompactionWork`.  
 
-* `DoCompactionWork`将要compaction的level层sstable和level+1层sstable组织成一个有序的合并迭代器iter. 每次执行一次iter.Next(),问题是哪些数据需要dropped掉呢？ 
+* `DoCompactionWork`将要compaction的level层sstable和level+1层sstable组织成一个有序的合并迭代器iter. 每次执行一次iter.Next(),问题是哪些数据需要dropped掉呢？   
+
 ```cpp
 if (last_sequence_for_key <= compact->smallest_snapshot) {
         // Hidden by an newer entry for same user key
@@ -94,8 +95,53 @@ if (last_sequence_for_key <= compact->smallest_snapshot) {
         drop = true; // (B)
       }
 ```
+
 第一种情况: 是已经得到了一个更新(seq更大)的key，所以丢弃掉现在得到的相同的key值。注意iter内对同一个key值seq是按照降序排列的，降序也就是新鲜度降低。只能丢掉`smallest_snapshot`之前的，之后的还有snapshot在用呢，所以不能丢。  
 第二种情况: 要求是删除操作，而且该key必须在level+2层以下没有出现。假设出现了却被删了，那么下次在level+2层以下发现一个key，就会被iter取出，而实际在上层已经被删掉了，造成错误。  
+
+
+### Compaction & AllowedSeeks
+* Compaction流程
+
+```cpp
+if(imm != NULL){
+   sst = BuildTable(imm);
+   level = PickLevelForMemTableOutput(sst);
+   edit = updateEdit();
+   updateVersionSet(edit);
+}else{
+   c = PickCompaction();
+   if(c.level.sstable == 1  && c.(level+1).sstable == 0 ){
+        array = overlap(c.level, c.level+2);
+        if(totalSize(array) < kMaxGrandParentOverlapBytes(20M)){
+            place c.level.sstable to Level+ 1; 
+            return ;
+        }
+   }
+   DoCompactionWork;  // 每次合并的数据量在26M左右。
+   edit = updateEdit();
+   updateVersionSet(edit);
+}
+```
+
+* AllowedSeeks的确定
+
+```
+// We arrange to automatically compact this file after
+// a certain number of seeks.  Let's assume:
+//   (1) One seek costs 10ms
+//   (2) Writing or reading 1MB costs 10ms (100MB/s)
+//   (3) A compaction of 1MB does 25MB of IO:
+//         1MB read from this level
+//         10-12MB read from next level (boundaries may be misaligned)
+//         10-12MB written to next level
+// This implies that 25 seeks cost the same as the compaction
+// of 1MB of data.  I.e., one seek costs approximately the
+// same as the compaction of 40KB of data.  We are a little
+// conservative and allow approximately one seek for every 16KB
+// of data before triggering a compaction.
+```
+
 
 ### db/version_set.h & db/version_set.cc
 * level-0的sstable大小不能超过`options_.write_buffer_size`。level-N(N>0)的sstable的最大空间不能超过kTargetFileSize(2M). 且第i(i>0)层的sstable的个数不能超过`10^i`, 所以第1层到第kNumLevel-1(6)层，总共能容纳的数据量为`(10+10^2+...+10^6) * 2 / 1024 = 4238G`
