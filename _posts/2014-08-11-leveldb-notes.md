@@ -83,14 +83,25 @@ a. `versionSet.PickCompaction()` 或者`manual_compaction_`。
 b. 当compaction与下层leve+1没有overlap，且与level+2的file的字节总数不超过20M时，直接把sstable放level+1层。这叫做`TrivialMove`,无关紧要的移动。同时维护edit.  
 c. 当不是`TrivialMove`时，就做`DoCompactionWork`.  
 
-* `DoCompactionWork ????`  
+* `DoCompactionWork`将要compaction的level层sstable和level+1层sstable组织成一个有序的合并迭代器iter. 每次执行一次iter.Next(),问题是哪些数据需要dropped掉呢？ 
+```cpp
+if (last_sequence_for_key <= compact->smallest_snapshot) {
+        // Hidden by an newer entry for same user key
+        drop = true;    // (A)
+      } else if (ikey.type == kTypeDeletion &&
+                 ikey.sequence <= compact->smallest_snapshot &&
+                 compact->compaction->IsBaseLevelForKey(ikey.user_key)) {
+        drop = true; // (B)
+      }
+```
+第一种情况: 是已经得到了一个更新(seq更大)的key，所以丢弃掉现在得到的相同的key值。注意iter内对同一个key值seq是按照降序排列的，降序也就是新鲜度降低。只能丢掉`smallest_snapshot`之前的，之后的还有snapshot在用呢，所以不能丢。  
+第二种情况: 要求是删除操作，而且该key必须在level+2层以下没有出现。假设出现了却被删了，那么下次在level+2层以下发现一个key，就会被iter取出，而实际在上层已经被删掉了，造成错误。  
 
 ### db/version_set.h & db/version_set.cc
 * level-0的sstable大小不能超过`options_.write_buffer_size`。level-N(N>0)的sstable的最大空间不能超过kTargetFileSize(2M). 且第i(i>0)层的sstable的个数不能超过`10^i`, 所以第1层到第kNumLevel-1(6)层，总共能容纳的数据量为`(10+10^2+...+10^6) * 2 / 1024 = 4238G`
 
 * `Version::PickLevelForMemTableOutput`  
   确定memtable dump到哪一层。假设与当前level有overlap,那么直接放到当前level ; 否则看与level+1是否有overlap，有就放level+1，没有就看level+2的overlap的files的总bytes数是否超过kMaxGrandParentOverlapBytes(2M),假设超过kMaxGrandParentOverlapBytes(20M)就放level+1算了，因为放level+2的话，要合并一大片数据IO划不来。
-* Version.file_to_compact_ & Version.file_to_compact_level_ & Version.compaction_score_ & Version.compaction_level_ ???? 
 * VersionSet::Builder有三个成员, 其中base_是一个全量，levels是一个增量（全量基础上要删除的文件和要新增的文件）。   
 
 ```cpp
