@@ -11,9 +11,9 @@ tags: [ leveldb ]
 在默认options下，leveldb的一些基本约束:  
 1. leveldb的level有0,1,2,3,4,5,6共7个取值;  
 2. 第0层的sstable在4M左右;  
-3. 第i(i>1)层的sstable每个sstable最大空间不超过2M;  
+3. 第i(i>0)层的sstable每个sstable最大空间不超过2M;  
 4. 第0层的sstable理想的情况是4个，尽量控制在8个以内，最大值不超过12;  
-5. 第i(i>1)层的所有sstable所占存储空间之和控制在`10^i M`左右;  
+5. 第i(i>0)层的所有sstable所占存储空间之和控制在`10^i M`左右;  
 这里说的_控制_不是指严格控制，而是总体上大致控制;  
 
 ### Compaction定义
