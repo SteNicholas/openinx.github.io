@@ -18,6 +18,6 @@ tags: [ kyotocabinet ]
 7. 1个接口，7个实现
 
 
-### kcprotodb.h 
-内存回收到处都是delete[], 太恶心了。
-各种内嵌class，尿奔。。。写了两个代码，时不时蹦出一个class，吓尿。
+### kchashdb.h 
+
+![Alt tchhashdb.png](/images/tchhashdb.png)
