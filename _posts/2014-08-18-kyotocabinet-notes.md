@@ -29,3 +29,8 @@ tags: [ kyotocabinet ]
 
 ![Alt tchhashdb.png](/images/tchhashdb.png)
 
+### kchplantdb.h
+`PlantDB`特点： 
+1. B+ Tree
+
+![Alt KyotoCabinetBPlusTreeClass.png](/images/KyotoCabinetBPlusTreeClass.png)
