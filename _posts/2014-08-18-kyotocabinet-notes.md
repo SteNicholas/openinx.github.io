@@ -30,7 +30,12 @@ tags: [ kyotocabinet ]
 ![Alt tchhashdb.png](/images/tchhashdb.png)
 
 ### kchplantdb.h
-`PlantDB`特点： 
-1. B+ Tree
+
+* B+ Tree的数据存储结构
+
+![Alt KyotoCabinet-BPlusTree-dataFormat.png](/images/KyotoCabinet-BPlusTree-dataFormat.png)
+
+* PlantDB的类组织结构
 
 ![Alt KyotoCabinetBPlusTreeClass.png](/images/KyotoCabinetBPlusTreeClass.png)
+
