@@ -32,9 +32,9 @@ tags: [ kyotocabinet ]
 ### kchplantdb.h
 
 * 作者实现的`B+ Tree`特点  
-1. PageCache策略： LRU-Cache分16个槽, 每个槽是个LinkedList+HashMap实现的LRUCache; 槽又分两类，一类是LeafNode的缓存页，一类是InnerNode的缓存页。LeafNode的LRUCache有分hot和warm两类RU-Cache. 当`hot.count() * 4 > warm.count() + 4`时，迁移一个hot到warm；每次都会将warm里命中的缓存页迁移到hot内。默认情况下，一个LRU-Cache表（16槽）容纳`2^16`个page，每个page占用8K字节。  
-2. 默认情况下，每个leafNode最多存放64条记录，每个InnerNode最多存放128条记录。最大Level层次为16.  
-3. 以下两个条件都满足才会分裂： a. 叶子节点记录数超过2条； b. 叶子节点消耗字节数超过8192; 分裂可能会导致内部节点连锁分裂。  
+a. PageCache策略： LRU-Cache分16个槽, 每个槽是个LinkedList+HashMap实现的LRUCache; 槽又分两类，一类是LeafNode的缓存页，一类是InnerNode的缓存页。LeafNode的LRUCache有分hot和warm两类RU-Cache. 当`hot.count() * 4 > warm.count() + 4`时，迁移一个hot到warm；每次都会将warm里命中的缓存页迁移到hot内。默认情况下，一个LRU-Cache表（16槽）容纳`2^16`个page，每个page占用8K字节。  
+b. 默认情况下，每个leafNode最多存放64条记录，每个InnerNode最多存放128条记录。最大Level层次为16.  
+c. 以下两个条件都满足才会分裂： a. 叶子节点记录数超过2条； b. 叶子节点消耗字节数超过8192; 分裂可能会导致内部节点连锁分裂。  
 
 * B+ Tree的数据存储结构
 
