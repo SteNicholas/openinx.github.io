@@ -8,7 +8,7 @@ tags: [ algorithm ]
 
 昨天做了下Google在线校招笔试，算法一天不做题，水平就擦擦往下掉。 
 
-#### [Poblem A. Password Attacker]
+### Poblem A. Password Attacker 
 
 * 描述
 
@@ -48,7 +48,7 @@ S(n,k) = S(n-1, k-1) + S(n-1, k) * k
 将M个密码分成N个等价类，但是等价类之间是有区别的，所以需要对N个等价类进行一次排列。 总数为`N! * S(M, N)`
 
 
-#### [Problem B. New Years Eve]
+### Problem B. New Years Eve
 
 * 描述
 
@@ -58,9 +58,7 @@ S(n,k) = S(n-1, k-1) + S(n-1, k) * k
 
 模拟题， 没啥好说的。 
 
-* 答案
-
-#### [Problem C. Card Game]
+### Problem C. Card Game 
 
 * 描述
 给一组长度为N的数列 A1, A2, ... , An 和一个整数K 。 给出这种操作： 每次从数列中选出连续的3个公差为K的等差数列，将这个三元组从数列中删除掉。 问怎样操作使得最后剩下的数列元素个数最少? 输出最少个数.
@@ -78,7 +76,7 @@ dp[i, j]表示对数列Ai,...Aj这一段进行若干次上述操作之后，剩�
    或者被分成两端`Ai..Am`, `Am+1...Aj`这两端分别被拿掉了，那么就是`dp[i+1, m] + dp[m+1, j]`
 
 
-#### [Problem D. Parentheses Order]
+### Problem D. Parentheses Order 
 
 * 描述
 
