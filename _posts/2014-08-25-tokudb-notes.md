@@ -15,3 +15,15 @@ tags: [ tokudb ]
 6. 相比InnoDB更少的数据存储空间
 7. 同步复制的延时更少
 8. 每个节点都有buffer
+
+
+### TokuDB 分型树的数据结构图
+
+![Alt basementNode.png](/images/basementNode.png)
+
+
+### TokuDB 代码结构图
+
+![Alt tokudb.png](/images/tokudb.png)
+
+
