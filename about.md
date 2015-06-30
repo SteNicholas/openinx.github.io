@@ -29,7 +29,11 @@ permalink: /about/
 
 [技能树](/skill-tree/openinx.html)
 
+### 兴趣树
+
+![Alt Openinx-Interest.png](/images/Openinx-Interest.png)
+
 ### 联系方式
 
-* Email  openinx#gmail.com
+* Email  openinx AT gmail.com
 * 豆瓣 [openinx](http://www.douban.com/people/68306838/)
