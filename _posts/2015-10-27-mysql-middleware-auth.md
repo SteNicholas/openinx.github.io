@@ -45,11 +45,8 @@ tags: [MySQL, Proxy]
     1 row in set (0.00 sec)
     ```
      
+    MySQL服务端拿到signature之后 ， 读取mysql.user表中的password的哈希值 ， 然后按照如下方式验证用户的signature是否正确； 
 
-     MySQL服务端拿到signature之后 ， 读取mysql.user表中的password的哈希值 ， 然后按照如下方式验证用户的signature是否正确； 
-
-
-    
     ```python
     sha1Password = signature xor sha1( seed + mysql.user.passwordHashValue ); 
     check_hash_value = sha1(sha1Password)
