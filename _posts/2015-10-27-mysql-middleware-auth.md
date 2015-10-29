@@ -15,9 +15,10 @@ tags: [MySQL, Proxy]
 * MySQL服务器端收到MySQL客户端的tcp请求之后，发送给客户端一个20字节的seed , 同时将seed保存在MySQL tcp连接的会话缓存中； 
 * 客户端收到seed之后， 使用客户端的username和password按照如下方式计算出一个签名: 
 
-   ```python
-    signature = sha1(password) xor sha1( seed +  sha1(sha1(password)) ); 
-   ```
+
+```python
+signature = sha1(password) xor sha1( seed +  sha1(sha1(password)) ); 
+```
 
    然后将计算出来的signature发送到MySQL服务端。 
 
@@ -27,40 +28,40 @@ tags: [MySQL, Proxy]
    mysql服务端计算密码的哈希算法为： `sha1(sha1(password))`
 
 
-    ```shell
-    mysql> select password('123456'); 
-    +-------------------------------------------+
-    | password('123456')                        |
-    +-------------------------------------------+
-    | *6BB4837EB74329105EE4568DDA7DC67ED2CA2AD9 |
-    +-------------------------------------------+
-    1 row in set (0.00 sec)
-    
-    mysql> select upper(concat('*', sha1(unhex(sha1('123456'))))); 
-    +-------------------------------------------------+
-    | upper(concat('*', sha1(unhex(sha1('123456'))))) |
-    +-------------------------------------------------+
-    | *6BB4837EB74329105EE4568DDA7DC67ED2CA2AD9       |
-    +-------------------------------------------------+
-    1 row in set (0.00 sec)
-    ```
-     
-    MySQL服务端拿到signature之后 ， 读取mysql.user表中的password的哈希值 ， 然后按照如下方式验证用户的signature是否正确； 
+```python
+mysql> select password('123456'); 
++-------------------------------------------+
+| password('123456')                        |
++-------------------------------------------+
+| *6BB4837EB74329105EE4568DDA7DC67ED2CA2AD9 |
++-------------------------------------------+
+1 row in set (0.00 sec)
 
-    ```python
-    sha1Password = signature xor sha1( seed + mysql.user.passwordHashValue ); 
-    check_hash_value = sha1(sha1Password)
-    if check_hash_value == mysql.user.passwordHashValue: 
-    	return 'auth ok'
-    else:
-    	return 'auth failed'
-    ```
-    
-    这里主要用到一条性质： `a = a xor b xor b` 。 至此， MySQL完成了整个用户认证的流程。
-    
-    
-这里， MySQL通过以下几点来保证用户密码的安全性：   
-    
+mysql> select upper(concat('*', sha1(unhex(sha1('123456'))))); 
++-------------------------------------------------+
+| upper(concat('*', sha1(unhex(sha1('123456'))))) |
++-------------------------------------------------+
+| *6BB4837EB74329105EE4568DDA7DC67ED2CA2AD9       |
++-------------------------------------------------+
+1 row in set (0.00 sec)
+```
+
+
+MySQL服务端拿到signature之后 ， 读取mysql.user表中的password的哈希值 ， 然后按照如下方式验证用户的signature是否正确； 
+
+```python
+sha1Password = signature xor sha1( seed + mysql.user.passwordHashValue ); 
+check_hash_value = sha1(sha1Password)
+if check_hash_value == mysql.user.passwordHashValue: 
+	return 'auth ok'
+else:
+	return 'auth failed'
+```
+
+这里主要用到一条性质： `a = a xor b xor b` 。 至此， MySQL完成了整个用户认证的流程。
+
+这里， MySQL通过以下几点来保证用户密码的安全性：
+
 * 杜绝在mysql.user表中保存用户的明文密码， 这样就算mysql的整个库被人脱掉， 也不致于被人看到用户的明文密码。 
 * 杜绝在TCP协议层传输明文密码， 这样能够避免别人通过抓取网络数据包来获取到用户的明文密码。 
 
@@ -73,7 +74,7 @@ tags: [MySQL, Proxy]
 
 * 用户向proxy发起的连接叫做前端连接。 
 * Proxy向后端MySQL数据库发起的连接叫做后端连接。
-  
+
 在常用的Proxy，例如Cobar, MySQL-Proxy， 他们为了实现上的简单， 采用把前端连接和后端连接的用户名和密码保存在本地的配置文件的方式来管理整个认证。其整个认证流程如下： 
 
 * 客户端向Proxy发起TCP连接； 
