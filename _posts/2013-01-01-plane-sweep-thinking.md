@@ -452,4 +452,11 @@ __复杂度分析__
 
 ## __附录__
 
+1. [经典问题A: 矩形轮廓周长](https://github.com/openinx/algorithm-solution/blob/master/plane-sweep-thinking/a.cpp) 
+2. [例A.1: 平面矩形面积交](https://github.com/openinx/algorithm-solution/blob/master/plane-sweep-thinking/a1.cpp)
+3. [例A.2: Farming  from HDU 3255](https://github.com/openinx/algorithm-solution/blob/master/plane-sweep-thinking/a2.cpp)
+4. [例A.3: Area K from HDU 3621](https://github.com/openinx/algorithm-solution/blob/master/plane-sweep-thinking/a3.cpp)
+5. [经典问题B: 给定矩形，求该矩形能覆盖的最带权值](https://github.com/openinx/algorithm-solution/tree/master/plane-sweep-thinking)
+6. [经典问题D: 平面多圆嵌套关系](https://github.com/openinx/algorithm-solution/blob/master/plane-sweep-thinking/d.cpp)
+7. [经典问题E: 平面最近点对](https://github.com/openinx/algorithm-solution/blob/master/plane-sweep-thinking/e.cpp)
 
