@@ -8,6 +8,9 @@ permalink: /about/
 
 从小学开始，到初中，到高中，到大学，到工作，鄙人傻逼度与年纪成指数级正比。
 
+* [技能树](/skill-tree/openinx.html)
+* [兴趣树](/images/Openinx-Interest.png)
+
 ### 心中极客形象
 
 * 不限语言，代码信手拈来
@@ -24,14 +27,6 @@ permalink: /about/
 * 代码简单，简单到什么程度呢？ 没有一行冗余的代码。
 * 代码清晰，何谓清晰？ 他人只需跟着作者的代码走，就能轻松理解作者的初衷。
 * 依赖越少越好，但又不与第一点相悖。
-
-### 技能树
-
-[技能树](/skill-tree/openinx.html)
-
-### 兴趣树
-
-![Alt Openinx-Interest.png](/images/Openinx-Interest.png)
 
 ### 联系方式
 
