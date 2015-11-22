@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Vitess 解析</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="/css/ppt.css">
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle
+
+# Vitess 解析
+.footnote[openinx@gmail.com]
+
+---
+layout: false
+.left-column[
+  ## Vitess Introduction
+]
+.right-column[
+
+- Suppoted by Golang, GTID
+
+- youtube 2011~2015 , github 2000+ star
+
+- vitess provides servers and tools which facilitate scaling of MySQL databases for large scale web services.
+
+- about 8w line(test code exclude)
+
+- client(bson SSL) java/python/go
+]
+
+---
+
+layout: false
+.left-column[
+  ## Golang ?
+]
+.right-column[
+- minimalist
+
+- goroutines
+
+- channels & selects
+
+- closures
+
+- defers
+
+- generics
+
+- GC
+
+- map, slices
+
+- performace: java < go < c/c++
+
+]
+
+
+---
+
+layout: false
+.left-column[
+  ## Vitess Features
+]
+.right-column[
+
+- dynamic  resharding
+
+- auto-failover
+
+- row-cache
+
+- limit inefficiency SQL
+
+- more client connection
+
+- replication lag optimization
+
+- multi data center
+
+]
+
+---
+
+class: center, middle
+# Thank you.
+
+    </textarea>
+    <script src="https://gnab.github.io/remark/downloads/remark-latest.min.js">
+    </script>
+    <script>
+      var slideshow = remark.create({
+          highlightStyle: 'monokai',
+          highlightLanguage: 'remark',
+          highlightLines: true
+        }) ;
+      //var slideshow = remark.create();
+    </script>
+  </body>
+</html>
