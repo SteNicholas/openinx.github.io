@@ -79,7 +79,246 @@ layout: false
 - replication lag optimization
 
 - multi data center
+]
 
+---
+class: center, middle
+layout: false
+.left-column[
+  ##  Vitess Topo
+]
+
+.right-column[
+<img src="/images/vitess-topo.png" width=120%>
+]
+
+---
+layout: false
+.left-column[
+  ## Vitess concepts
+]
+.right-column[
+- keyspace/keyspaceId
+
+- vtctl
+
+- vttablet
+
+- vtgate
+
+- vtctld
+
+- vtworker
+
+- vtprimecache
+]
+
+---
+
+layout: false
+.left-column[
+  ## Configure Server
+]
+.right-column[
+
+```shell
+/zk/global/vt/keyspaces
+
+/zk/global/vt/keyspaces/action
+
+/zk/global/vt/keyspaces/actionlog
+
+/zk/global/vt/keyspaces/shards   
+
+/zk/global/vt/keyspaces/<keyspace>/shards/<shard>
+
+/zk/global/vt/keyspaces/<keyspace>/shards/<shard>/action
+
+/zk/global/vt/keyspaces/<keyspace>/shards/<shard>/actionlog
+
+/zk/global/vt/vschema
+
+/zk/<cell>/vt/tablets
+
+/zk/<cell>/vt/tablets/<table-uid>
+```
+]
+
+---
+layout: false
+.left-column[
+  ## Configure Server
+]
+
+.right-column[
+```shell
+$ zk cat /zk/global/vt/keyspaces/ruser/shards/10-20
+{
+  "MasterAlias": {
+    "Cell": "nyc",
+    "Uid": 200278
+  },
+  "KeyRange": {
+    "Start": "10",
+    "End": "20"
+  },
+ "Cells": [
+    "oe",
+    "yh"
+ ]
+}
+```
+]
+
+
+---
+
+layout: false
+.left-column[
+  ## Configure Server
+]
+.right-column[
+```shell
+$ zk cat /zk/nyc/vt/tablets/0000200308
+{
+  "Alias": {
+    "Cell": "nyc",
+    "Uid": 200308,
+  },
+  "Parent": {
+    "Cell": "",
+    "Uid": 0
+  },
+  "Keyspace": "",
+  "Shard": "",
+  "Type": "idle",
+  "State": "ReadOnly",
+  "DbNameOverride": "",
+  "KeyRange": {
+    "Start": "",
+    "End": ""
+  }
+}
+```
+]
+
+---
+
+layout: false
+.left-column[
+  ## Vitess Resharding 
+]
+.right-column[
+- shard0, shard1, origin master  —> vttablet 
+
+- prepare two spare shard0, shard1
+
+- vtgate point to origin master
+
+- multi-snapshot : data & repl-pos
+
+- multi-restore
+
+- set shard0, shard1 read-only.
+
+- shard0, shard1 replication to orign master
+
+- set origin master read-only
+
+- wait until shard0, shard1 catch origin master.
+
+- update configure server, vtgate point to shard0, shard1
+]
+
+---
+layout: false
+.left-column[
+  ## Vitess Snapshot
+]
+
+.right-column[
+1. prepare
+
+2. set read-only
+
+3. stop slave
+
+4. get master position & slave position.
+
+5. flush tables with read lock
+
+6. backup
+```sql
+select {.keyspaceIdColumnName}, {.Columns} \
+INTO outfile {.dataPath} character         \
+set binary fields terminated by ‘,’        \
+optionally  enclosed by “”                 \
+escaped by ‘\\’ lines terminated by ‘\n’   \
+from {.tableName}
+```
+
+7. write manifest 
+
+9. gzip
+]
+
+---
+layout: false
+.left-column[
+  ## Vitess RowCache
+]
+.right-column[
+- RowCache VS MySQL Buffer Pool
+
+- LRUCache
+
+- Base on binlog
+
+- DDL ?
+  - key=prefix +body 
+
+  - every DDL —> prefix:=prefix+1
+  
+  - lastest prefix + Body
+  
+  - vttable restart ?
+]
+
+---
+layout: false
+.left-column[
+  ## Vitess Cons
+]
+.right-column[
+- bson
+
+- cross-shard groupBy, Limit, having, distinct, orderBy, insert, delete, update.
+
+- cross-shard index
+
+- cross-shard joins
+
+- distribute transaction
+
+- sync replication
+
+- part of second index 
+]
+
+---
+layout: false
+.left-column[
+  ## references
+]
+
+.right-column[
+-  https://code.google.com/p/vitess/
+
+-  https://github.com/youtube/vitess
+
+-  http://vitess.googlecode.com/files/Vitess_Percona_2012.pdf
+
+-  http://vdisk.weibo.com/s/7JmTtKze0rn?from=page_100505_profile&wvr=6
 ]
 
 ---
