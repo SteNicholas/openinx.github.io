@@ -1,6 +1,6 @@
 ---
 layout: page
-title: About
+title: About Me
 permalink: /about/
 ---
 
@@ -28,7 +28,9 @@ permalink: /about/
 * 代码清晰，何谓清晰？ 他人只需跟着作者的代码走，就能轻松理解作者的初衷。
 * 依赖越少越好，但又不与第一点相悖。
 
-### 联系方式
+### 联系我
 
-* Email  openinx AT gmail.com
-* 豆瓣 [openinx](http://www.douban.com/people/68306838/)
+* [GitHub](https://github.com/openinx)
+* [豆瓣](http://www.douban.com/people/68306838/)
+* <a href="mailto:{{ site.email }}">邮箱</a>
+* [RSS订阅](/feed.xml)
