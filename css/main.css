@@ -16,6 +16,22 @@ body {
   background-color: #fdfdfd;
 }
 
+table{
+  display: block;
+  width: 100%;
+  border: 1px solid #ccc;
+  overflow: auto;
+}
+
+tr {
+    background-color: #fff;
+    border-top: 1px solid #ccc;
+}
+
+td {
+    border: 1px solid #ccc;
+}
+
 h1, h2, h3, h4, h5, h6 { font-size: 100%; font-weight: 400; }
 
 a         { color: #2a7ae2; text-decoration: none; }
