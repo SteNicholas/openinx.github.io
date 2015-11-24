@@ -57,6 +57,47 @@ layout: false
 
 ]
 
+---
+
+layout: false
+.left-column[
+  ## Golang ?
+]
+.right-column[
+```go
+func main() {
+  blockQueue := make(chan int64, 10)
+  checkIsPrimer := func(x int64) bool {
+    for i := int64(2); i*i <= x; i++ {
+      if x%i == int64(0) {
+        return false
+      }
+    }
+    return true
+  }
+
+  go func() {
+    var maxPrime int64
+    for i := int64(0); i < int64(10000000); i++ {
+      if checkIsPrimer(i) {
+        maxPrime = i
+      }
+    }
+    blockQueue <- maxPrime
+  }()
+
+  tmr := time.NewTimer(10 * time.Second)
+  defer tmr.Stop()
+
+  select {
+  case firstPrimer := <-blockQueue:
+    fmt.Printf("the first Primer: %d\n", firstPrimer)
+  case <-tmr.C:
+    fmt.Printf("time " + strconv.Itoa(10) + " exceed")
+  }
+}
+```
+]
 
 ---
 
@@ -117,6 +158,27 @@ layout: false
 
 layout: false
 .left-column[
+  ## Vitess concepts
+]
+
+.right-column[
+- keyspaceId 
+
+- unique Index 
+
+- Non-unique Index 
+
+- second index support Select only
+
+- How to find shards by keyspaceId ? 
+
+<img src="/images/vitess-vindex.png" width="80%">
+]
+
+---
+
+layout: false
+.left-column[
   ## Configure Server
 ]
 .right-column[
@@ -170,7 +232,6 @@ $ zk cat /zk/global/vt/keyspaces/ruser/shards/10-20
 ```
 ]
 
-
 ---
 
 layout: false
@@ -200,6 +261,103 @@ $ zk cat /zk/nyc/vt/tablets/0000200308
   }
 }
 ```
+]
+
+---
+
+layout: false
+.left-column[
+  ## Vtgate - Structure
+]
+
+.right-column[
+  <img src="/images/vtgate-erd.png" width="105%">
+]
+
+---
+layout: false
+.left-column[
+  ## Vtgate – SQL Example
+]
+.right-column[
+  <img src="/images/vitess-schema-test-json.png" width="120%">
+]
+
+---
+layout: false
+.left-column[
+  ## Vtgate – SQL Example
+]
+.right-column[
+  <img src="/images/vitess-plan.png" width="60%">
+]
+
+---
+layout: false
+<img src="/images/vitess-sql-plan.png" width="110%">
+
+
+---
+layout: false
+.left-column[
+  ## Vttablet
+]
+.right-column[
+- User Auth 
+
+- SQL Filter 
+
+- Binlog Filter 
+
+- Backup
+
+- Restore
+
+- Diffs
+
+- Row Limit
+
+- Kill Timeout SQL
+
+- Query blacklisting 
+
+- row cache 
+
+- more stats & monitor
+]
+
+---
+layout: false
+## Vttable Structure
+<img src="/images/vttablet-structure.png" width="100%">  
+---
+layout: false
+.left-column[
+  ## Vitess Resharding
+]
+.right-column[
+- read scaling up ? 
+  
+  — replica
+
+- write scale up ?
+  
+  — split
+
+- dynamic shard
+
+- scale
+
+- less than 5 seconds read-only downtime
+]
+
+---
+layout: false
+.left-column[
+  ## Vitess Resharding
+]
+.right-column[
+  <img src="/images/vitess-sharding.png" width="100%">  
 ]
 
 ---
@@ -306,12 +464,11 @@ layout: false
 ]
 
 ---
-layout: false
-.left-column[
-  ## references
-]
+<img src="/images/vitess-compare.png" width="110%">  
+---
 
-.right-column[
+## References
+
 -  https://code.google.com/p/vitess/
 
 -  https://github.com/youtube/vitess
@@ -319,7 +476,6 @@ layout: false
 -  http://vitess.googlecode.com/files/Vitess_Percona_2012.pdf
 
 -  http://vdisk.weibo.com/s/7JmTtKze0rn?from=page_100505_profile&wvr=6
-]
 
 ---
 
