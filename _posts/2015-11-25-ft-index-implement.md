@@ -87,7 +87,7 @@ Update/Delete操作的情况和Insert操作的情况类似， 但是需要特别
 ### 分型树的Range-Query实现
 下面来介绍Range-Query的查询实现。简单来讲， 分型树的Range-Query基本等价于进行N次Point-Query操作，操作的代码也基本等价于N次Point-Query操作的代码。  由于分型树在上层节点的msg_buffer中存放着BasementNode的更新操作，因此我们在查找每一个Key的Value时，都需要从根节点查找到叶子节点， 然后将这条路径上的消息apply到basenmentNode的Value上。 这个流程可以用下图来表示。 
 
-![Alt txt](/images/tokudb/innodb-index-search.png)
+![Alt txt](/images/tokudb/ft-index-push-down.png)
 
 但是在B+树中， 由于底层的各个叶子节点都通过指针组织成一个双向链表， 结构如下图所示。 因此，我们只需要从跟节点到叶子节点定位到第一个满足条件的Key,  然后不断在叶子节点迭代next指针，即可获取到Range-Query的所有Key-Value键值。因此，对于B+树的Range-Query操作来说，除了第一次需要从root节点遍历到叶子节点做随机写操作，后继数据读取基本可以看做是顺序IO。
 
