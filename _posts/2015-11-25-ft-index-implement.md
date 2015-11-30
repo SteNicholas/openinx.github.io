@@ -85,18 +85,24 @@ Update/Delete操作的情况和Insert操作的情况类似， 但是需要特别
 分形树的查找流程基本和 InnoDB的B+树的查找流程类似， 区别在于分形树需要将从Root节点到叶子节点这条路径上的messge buffer都往下推(下推的具体流程请参考代码，这里不再展开)，并将消息apply到BasementNode节点上。注意查找流程需要下推消息， 这可能会造成路径上的部分节点被撑饱满，但是ft-index在查询过程中并不会对叶子节点做分裂和合并操作， 因为ft-index的设计原则是： Insert/Update/Delete操作负责节点的Split和Merge, Select操作负责消息的延迟下推(Lazy Push)。 这样，分形树就将Insert/Delete/Update这类更新操作通过未来的Select操作应用到具体的数据节点，从而完成更新。
 
 ### 分形树的Range-Query实现
-下面来介绍Range-Query的查询实现。简单来讲， 分形树的Range-Query基本等价于进行N次Point-Query操作，操作的代码也基本等价于N次Point-Query操作的代码。  由于分形树在非叶子节点的msg_buffer中存放着BasementNode的更新操作，因此我们在查找每一个Key的Value时，都需要从根节点查找到叶子节点， 然后将这条路径上的消息apply到basenmentNode的Value上。 这个流程可以用下图来表示。 
+下面来介绍Range-Query的查询实现。简单来讲， 分形树的Range-Query基本等价于进行N次Point-Query操作，操作的代价也基本等价于N次Point-Query操作的代价。  由于分形树在非叶子节点的msg_buffer中存放着BasementNode的更新操作，因此我们在查找每一个Key的Value时，都需要从根节点查找到叶子节点， 然后将这条路径上的消息apply到basenmentNode的Value上。 这个流程可以用下图来表示。 
 
 ![Alt txt](/images/tokudb/ft-index-push-down.png)
 
 但是在B+树中， 由于底层的各个叶子节点都通过指针组织成一个双向链表， 结构如下图所示。 因此，我们只需要从跟节点到叶子节点定位到第一个满足条件的Key,  然后不断在叶子节点迭代next指针，即可获取到Range-Query的所有Key-Value键值。因此，对于B+树的Range-Query操作来说，除了第一次需要从root节点遍历到叶子节点做随机写操作，后继数据读取基本可以看做是顺序IO。
 
 ![Alt txt](/images/tokudb/innodb-index-search.png)
+
+通过比较分形树和B+树的Range-Query实现可以发现， 分形树的Range-Query查询代价明显比B+树代价高，因为分型树需要遍历Root节点的覆盖Range的整颗子树，而B+树只需要一次Seed到Range的起始Key，后续迭代基本等价于顺序IO。
  
 ### 总结 
- 
-本节从时间复杂度以及实现角度，对比ft-index和B+树两种索引结构的优缺点。
- 
+
+本文以分形树的树形结构为切入点，详细介绍分形树的增删改查操作。总体来说，分形树是一种写优化的数据结构，它的核心思想是利用节点的MessageBuffer缓存更新操作，充分利用数据局部性原理， 将随机写转换为顺序写，这样极大的提高了随机写的效率。Tokutek研发团队的[iiBench测试](test-link)结果显示： TokuDB的insert操作的性能比InnoDB快数十倍，而Select操作的性能仅比InnoDB慢3~8倍左右，同时由于TokuDB采用有4M的大页存储，使得压缩比较高。这也是Percona公司宣称TokuDB更高性能，更低成本的原因。 
+
+另外，在线更新表结构(Hot Schema Change)实现也是基于MessageBuffer来实现的， 但和Insert/Delete/Update操作不同的是， 前者的消息下推方式是广播式下推（父节点的一条消息，应用到所有的儿子节点）， 后者的消息下推方式单播式下推（父节点的一条消息，应用到对应键值区间的儿子节点)， 由于实现类似于Insert操作，所以不再展开描述。 
+
+最后，欢迎对ft-index感兴趣的同学一起交流讨论。
+
 ### 参考资料
 
 1.  https://github.com/Tokutek/ft-index
