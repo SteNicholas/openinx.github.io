@@ -17,10 +17,10 @@ tags: [database, tokudb, mysql, storage engine]
 本文主要讨论的是TokuDB的ft-index。 ft-index相比B+树的几个重要特点有：      
 
 * 从理论复杂度和测试性能两个角度上看， ft-index的Insert/Delete/Update操作性能优于B+树。  但是读操作性能低于B+树。      
-* ft-index采用更大的索引页和数据页（默认为4M, InnoDB默认为16K）， ft-index的数据页和索引页的压缩比更高。也就是说，在打开索引页和数据页压缩的情况下，插入等量的数据， ft-index占用的存储空间更少。  
-* ft-index支持在线修改DDL (Hot Schema Change)。 简单来讲，就是在做DDL操作的同时(例如添加索引)，用户依然可以执行写入操作， 这个特点是ft-index树形结构天然支持的。 由于篇幅限制，本文并不对Hot Schema Change的实现做相关描述。    
+* ft-index采用更大的索引页和数据页（ft-index默认为4M, InnoDB默认为16K）， 这使得ft-index的数据页和索引页的压缩比更高。也就是说，在打开索引页和数据页压缩的情况下，插入等量的数据， ft-index占用的存储空间更少。  
+* ft-index支持在线修改DDL (Hot Schema Change)。 简单来讲，就是在做DDL操作的同时(例如添加索引)，用户依然可以执行写入操作， 这个特点是ft-index树形结构天然支持的。 由于篇幅限制，本文并不对Hot Schema Change的实现做具体描述。    
 
-此外， ft-index支持事务(ACID)以及事务的MVCC(Multiple Version Cocurrency Control 多版本并发控制)， 支持崩溃恢复。
+此外， ft-index还支持事务(ACID)以及事务的MVCC(Multiple Version Cocurrency Control 多版本并发控制)， 支持崩溃恢复。
 
 正因为上述特点，  Percona公司宣称TokuDB一方面带给客户极大的性能提升， 另一方面还降低了客户的存储使用成本。
  
