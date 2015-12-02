@@ -1,0 +1,60 @@
+digraph{
+
+	rankdir = LR ; 
+	node [shape = record, style =filled];   
+	edge [style = bold]; 
+
+
+	node_format [ label = "magic(8B) | 
+						   layout-version(4B) | 
+						   layout-version-original(4B) | 
+						   build-id (4B) | 
+						   n-children (4B) | 
+						   <children_offsets> children-offsets |
+						   x1764 checksum (4B)|
+						   <sub_block> sub-block"]
+
+
+
+	children_offsets [ label = "<head> child-offset[0] | <child1> child-offset[1] | ... | child-offset[children-1]" ]
+
+	child_offset [label = "<head> offset (4B) | size (4B)"]
+
+	sub_block [ label = "<head> compressed_size (4B) | 
+						 uncompressed_size (4B) | 
+						 <compress_bytes> compress_bytes (compressed_size B) | 
+						 x1764 checksum (4B)" ] 
+
+	ftnode_info [label = "<head> max_msn_applied_to_node_on_disk (8B) | 
+						  flags (4B) |
+						  height (4B) | 
+						  <pivotkeys_bytes> pivotkeys-bytes|
+						  blocknum[0] (8B) |
+						  blocknum[1] (8B) |
+						  ... |
+						  blocknum[children-1] (8B) 
+						  "]
+
+	pivotkeys_bytes [label = "<head> keylen(0) (4B) |
+						      key-bytes(0) (keylen0 B) |
+						      keylen(1) (4B) | 
+						      key-bytes(1) (keylen1 B) | 
+						      ...  |
+						      keylen(children-2) (4B)  | 
+						      key-bytes(children-2) (keylen(children-2) B)
+						      ", fillcolor="#A8E270"];
+
+
+	node_format:children_offsets -> children_offsets:head; 
+	node_format:sub_block -> sub_block:head; 
+
+	children_offsets:child1 -> child_offset:head; 
+
+	sub_block:compress_bytes -> ftnode_info:head; 
+
+
+
+
+	ftnode_info:pivotkeys_bytes -> pivotkeys_bytes:head;
+
+}

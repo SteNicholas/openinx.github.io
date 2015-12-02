@@ -1,0 +1,7 @@
+digraph{
+	rankdir=LR;
+	node [shape = record, style =filled];   
+	edge [style = bold]; 
+
+	threads [label = "evictor thread | cleaner thread | checkpointer thread | client thread pool"]
+}
