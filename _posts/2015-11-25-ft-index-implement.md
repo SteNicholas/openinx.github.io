@@ -27,7 +27,7 @@ tags: [database, tokudb, mysql, storage engine]
  
 ### ft-index的磁盘存储结构 
  
-ft-index的索引结构图如下(在这里为了方便描述和理解，我对ft-index的二进制存储做了一定程度简化和抽象， 具体的二进制存储格式可以参考我的博客)：
+ft-index的索引结构图如下(在这里为了方便描述和理解，我对ft-index的二进制存储做了一定程度简化和抽象， 具体的二进制存储格式可以参考[我的博客](http://openinx.github.io/2015/12/02/ft-layout/))：
 
 <img src="/images/tokudb/ft-index-tree-structure.png" width="100%"> 
 
