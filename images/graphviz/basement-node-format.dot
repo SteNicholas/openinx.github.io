@@ -7,7 +7,7 @@ digraph bndata{
 					  val_data_size(4B) | \
 					  fixed_klpair_length(4B) | \
 					  all_keys_same_length(1B) | \
-					  keys_vals_sparate(1B)", fillcolor = "#A8E270"];
+					  keys_vals_sparate(1B)"];
 
 
 	bn_leaf_entry_list [label = "<header> leaf-entry[0] | \
@@ -32,7 +32,7 @@ digraph bndata{
 							       xrs-bytes (le_disk_size - 1 - 4 - 1)"]
 
 
-	wbuf [label = "<header> basement-node-header|<body> basement-node-body", fillcolor="#FFFF37"]; 
+	wbuf [label = "<header> basement-node-header|<body> basement-node-body", fillcolor="#CCCCFF"]; 
 
 	wbuf:header -> bn_header:header;
 	wbuf:body -> bn_leaf_entry_list:header;

@@ -12,11 +12,15 @@ digraph{
 						   n-children (4B) | 
 						   <children_offsets> children-offsets |
 						   x1764 checksum (4B)|
-						   <sub_block> sub-block"]
+						   <sub_block> sub-block-info (compressed)| 
+						   <child_partition> child_partition[0] (compressed) | 
+						   x1764checksum[0] (4B)|
+						   ...|
+						   child_partition[children-1](compressed) | 
+						   x1764checksum[children-1] (4B)", fillcolor="#CCCCFF"]
 
 
-
-	children_offsets [ label = "<head> child-offset[0] | <child1> child-offset[1] | ... | child-offset[children-1]" ]
+	children_offsets [ label = "<head> child-offset[0] (8B) | <child1> child-offset[1] (8B) | ... | child-offset[children-1] (8B)" ]
 
 	child_offset [label = "<head> offset (4B) | size (4B)"]
 
@@ -25,15 +29,16 @@ digraph{
 						 <compress_bytes> compress_bytes (compressed_size B) | 
 						 x1764 checksum (4B)" ] 
 
-	ftnode_info [label = "<head> max_msn_applied_to_node_on_disk (8B) | 
+	sb_node_info [label = "<head> max_msn_applied_to_node_on_disk (8B) | 
+		                  dummy value(4B =0)|
 						  flags (4B) |
 						  height (4B) | 
+						  oldest_referenced_xid_known (8B) |
 						  <pivotkeys_bytes> pivotkeys-bytes|
 						  blocknum[0] (8B) |
-						  blocknum[1] (8B) |
 						  ... |
-						  blocknum[children-1] (8B) 
-						  "]
+						  blocknum[children-1] (8B) |
+						  x1764checksum(4B)"]
 
 	pivotkeys_bytes [label = "<head> keylen(0) (4B) |
 						      key-bytes(0) (keylen0 B) |
@@ -42,19 +47,44 @@ digraph{
 						      ...  |
 						      keylen(children-2) (4B)  | 
 						      key-bytes(children-2) (keylen(children-2) B)
-						      ", fillcolor="#A8E270"];
+						      ", fillcolor="#A8E270"]
+
+	noleaf_child_partition [label = "<head> FTNODE_PARTITION_MSG_BUFFER (1B 0xbb) |
+									 msg_buffer_bytes | 
+									 fresh_msg_size (4B)| 
+									 fresh_msg_offset[0](4B)|
+									 ...|
+									 fresh_msg_offset[fresh_msg_size-1] (4B) | 
+									 stale_msg_size (4B)|
+									 stale_msg_offset[0] (4B) |
+									 ...|
+									 stale_msg_offset[stale_msg_size-1] (4B) |
+									 broadcast_size(4B) | 
+									 broadcast_msg_offset[0] (4B) |
+									 ...|
+									 broadcast_msg_offset[broadcast_size-1] (4B) |
+									 x1764checksum(4B)"]
+
+	leaf_child_parition [label = "<head> FTNODE_PARTITION_DMT_LEAVES (1B 0xaa)|
+								  basement_node_size (4B) | 
+								  BASEMENT_NODE_BYTES "]
+
+	child_partition [label = "<noleaf> noleaf_child_partition |
+						      <leaf> leaf_child_parition ", fillcolor="#A8E270" ]
+
 
 
 	node_format:children_offsets -> children_offsets:head; 
 	node_format:sub_block -> sub_block:head; 
+	node_format:child_partition -> child_partition:noleaf
 
 	children_offsets:child1 -> child_offset:head; 
 
-	sub_block:compress_bytes -> ftnode_info:head; 
+	sub_block:compress_bytes -> sb_node_info:head; 
 
+	sb_node_info:pivotkeys_bytes -> pivotkeys_bytes:head
 
-
-
-	ftnode_info:pivotkeys_bytes -> pivotkeys_bytes:head;
+	child_partition:noleaf -> noleaf_child_partition:head
+	child_partition:leaf -> leaf_child_parition:head
 
 }

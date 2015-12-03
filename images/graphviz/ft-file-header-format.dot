@@ -13,7 +13,7 @@ digraph{
 						   checkpoint_count(8B)|
 						   checkpoint_lsn(8B)|
 						   <data> ...|
-						   x1764checksum(4B)"
+						   x1764checksum(4B)", fillcolor="#CCCCFF"
 						   ]
 
 	head1       [ label = "tokudata(8B offset=4096) | 
@@ -24,7 +24,7 @@ digraph{
 						   checkpoint_count(8B)|
 						   checkpoint_lsn(8B)|
 						   <data>...|
-						   x1764checksum(4B)"
+						   x1764checksum(4B)", fillcolor="#CCCCFF"
 						   ]
 
 	data   [label = "<header> nodesize(4B) | 

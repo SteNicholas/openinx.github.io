@@ -1,10 +1,10 @@
 digraph msgbuffer{
-	rankdir = TB ; 
+	rankdir = LR ; 
 	node [shape = record, style =filled];   
 	edge [style = bold]; 
 
 
-	memory [label = "<head> byte(0)|byte(1)|...|<tail> byte(used)|...|byte(size=2^N-1)" ]; 
+	memory [label = "<head> byte(0)|byte(1)|...|<tail> byte(used)|...|byte(size=2^N-1)", fillcolor="#CCCCFF"]; 
 
 
 	wbuf [label = "<head> num_entries(4B) | <msg0> msg(0) | msg(1) | ... |<tail> msg(num_entries-1) "]
