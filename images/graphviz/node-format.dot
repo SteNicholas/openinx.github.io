@@ -50,7 +50,7 @@ digraph{
 						      ", fillcolor="#A8E270"]
 
 	noleaf_child_partition [label = "<head> FTNODE_PARTITION_MSG_BUFFER (1B 0xbb) |
-									 msg_buffer_bytes | 
+									 <msg_buffer> msg_buffer_bytes | 
 									 fresh_msg_size (4B)| 
 									 fresh_msg_offset[0](4B)|
 									 ...|
@@ -67,10 +67,14 @@ digraph{
 
 	leaf_child_parition [label = "<head> FTNODE_PARTITION_DMT_LEAVES (1B 0xaa)|
 								  basement_node_size (4B) | 
-								  BASEMENT_NODE_BYTES "]
+								  <basement_node> BASEMENT_NODE_BYTES "]
 
 	child_partition [label = "<noleaf> noleaf_child_partition |
 						      <leaf> leaf_child_parition ", fillcolor="#A8E270" ]
+
+
+	msg_buffer [label = "<head> Message Buffer", fillcolor="#FF9999"]
+	basement_node [label = "<head> Basement Node", fillcolor="#FF9999"]
 
 
 
@@ -86,5 +90,9 @@ digraph{
 
 	child_partition:noleaf -> noleaf_child_partition:head
 	child_partition:leaf -> leaf_child_parition:head
+
+	noleaf_child_partition:msg_buffer -> msg_buffer:head
+	leaf_child_parition:basement_node -> basement_node:head
+
 
 }
