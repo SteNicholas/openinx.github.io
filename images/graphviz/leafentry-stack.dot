@@ -25,6 +25,6 @@ digraph {
 
 
 	array:a0 -> detail:head 
-	array:a5 -> cxrs: head 
+	array:a6 -> cxrs: head 
 	array:a9 -> end: head
 }
