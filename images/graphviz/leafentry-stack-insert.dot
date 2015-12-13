@@ -7,7 +7,7 @@ digraph {
     commited_txn   [ label = "<head> commited-txn" ]
     uncommied_txn  [ label = "<head> uncommited-txn "]
 
-	array [ label = "<a0> 0 | 1 | 2 | 3 | 4 | <a5> 5 | <a6> 6 | 7 | 8 | <a9> 9", fillcolor="#CCCCFF"]
+	array [ label = "<a0> 0 | 1 | 2 | 3 | 4 | <a5> 5 | <a6> 6 | 7 | 8 | <a9> 9 | <a10> NewInsertValue", fillcolor="#CCCCFF"]
 
 
 	detail [ label = "<head> [txid, type, len, data] "]
@@ -21,10 +21,10 @@ digraph {
 
 
 	uncommied_txn:head -> array:a6
-	uncommied_txn:head -> array:a9
+	uncommied_txn:head -> array:a10
 
 
 	array:a0 -> detail:head 
 	array:a5 -> cxrs: head 
-	array:a9 -> end: head
+	array:a10 -> end: head
 }
