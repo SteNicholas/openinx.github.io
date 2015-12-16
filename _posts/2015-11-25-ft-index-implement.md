@@ -10,9 +10,9 @@ tags: [database, tokudb, mysql, storage engine]
 
 ### 分形树简介
 
-分形树是一种用来组织磁盘索引的树形数据结构，它是一种写优化的数据结构。 也就是说，在一般情况下， 分形树的写操作（Insert/Update/Delete）性能比较好(Percona公司测试结果显示, TokuDB的写性能优于InnoDB的[B+树](https://en.wikipedia.org/wiki/B%2B_tree))，同时它还能保证读操作近似于B+树的读性能（读性能略低于B+树）。 类似的索引结构还有LSM-Tree, 但是LSM-Tree的写性能远优于读性能。
+分形树是一种写优化的磁盘索引数据结构。 在一般情况下， 分形树的写操作（Insert/Update/Delete）性能比较好，同时它还能保证读操作近似于B+树的读性能。据Percona公司测试结果显示, TokuDB分形树的写性能优于InnoDB的[B+树](https://en.wikipedia.org/wiki/B%2B_tree))， 读性能略低于B+树。 类似的索引结构还有LSM-Tree, 但是LSM-Tree的写性能远优于读性能。
 
-工业界实现分形树最重要的产品就是[Tokutek](https://github.com/Tokutek)公司开发的ft-index（Fractal Tree Index）键值对存储引擎。这个项目自2007年开始研发，一直到2013年开源，代码目前托管在[Github](https://github.com/percona/PerconaFT)上。开源协议采用 GNU General Public License授权。 Tokutek公司为了充分发挥ft-index存储引擎的威力，基于K-V存储引擎之上，实现了MySQL存储引擎插件提供所有API接口，用来作为MySQL的存储引擎， 这个项目称之为[TokuDB](https://github.com/percona/tokudb-engine)， 同时还实现了MongDB存储引擎的API接口，这个项目称之为[TokuMX](https://github.com/Tokutek/mongo)。在2015年4月14日， Percona公司宣布收购Tokutek公司， ft-index/TokuDB/TokuMX这一系列产品被纳入Percona公司的麾下。自此， Percona公司宣称自己成为第一家同时提供MySQL和MongoDB软件及解决方案的技术厂商。
+工业界实现分形树最重要的产品就是[Tokutek](https://github.com/Tokutek)公司开发的ft-index（Fractal Tree Index）键值对存储引擎。这个项目自2007年开始研发，一直到2013年开源，代码目前托管在[Github](https://github.com/percona/PerconaFT)上。开源协议采用 GNU General Public License授权。 Tokutek公司为了充分发挥ft-index存储引擎的威力，基于K-V存储引擎之上，实现了MySQL存储引擎插件提供所有API接口，用来作为MySQL的存储引擎， 这个项目称之为[TokuDB](https://github.com/percona/tokudb-engine)， 同时还实现了MongoDB存储引擎的API接口，这个项目称之为[TokuMX](https://github.com/Tokutek/mongo)。在2015年4月14日， Percona公司宣布收购Tokutek公司， ft-index/TokuDB/TokuMX这一系列产品被纳入Percona公司的麾下。自此， Percona公司宣称自己成为第一家同时提供MySQL和MongoDB软件及解决方案的技术厂商。
 
 本文主要讨论的是TokuDB的ft-index。 ft-index相比B+树的几个重要特点有：      
 
@@ -28,6 +28,8 @@ tags: [database, tokudb, mysql, storage engine]
 ### ft-index的磁盘存储结构 
  
 ft-index的索引结构图如下(在这里为了方便描述和理解，我对ft-index的二进制存储做了一定程度简化和抽象， 具体的二进制存储格式可以参考[我的博客](http://openinx.github.io/2015/12/02/ft-layout/))：
+
+在下图中， 灰色区域表示ft-index分形树的一个页，绿色区域表示一个键值，两格绿色区域之间表示一个儿子指针。 BlockNum表示儿子指针指向的页的偏移量。Fanout表示分形树的扇出，也就是儿子指针的个数。 NodeSize表示一个页占用的字节数。NonLeafNode表示当前页是一个非叶子节点，LeafNode表示当前页是一个叶子节点，叶子节点是最底层的存放Key-value键值对的节点， 非叶子节点不存放value。 Heigth表示树的高度， 根节点的高度为3， 根节点下一层节点的高度为2， 最底层叶子节点的高度为1。Depth表示树的深度，根节点的深度为0， 根节点的下一层节点深度为1。
 
 <img src="/images/tokudb/ft-index-tree-structure.png" width="100%"> 
 
