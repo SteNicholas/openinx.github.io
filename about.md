@@ -4,8 +4,6 @@ title: About
 permalink: /about/
 ---
 
-### 简介
-
 我叫 __OpenInx__, 这个ID的全文是Open in X，象征着探索未知的世界。我热衷探索，喜欢开源软件。我对数据库和编程语言抱有极大兴趣和热情，希望和志同道合的朋友共同成长进步。
 
 * [技能树](/skill-tree/openinx.html)
