@@ -32,7 +32,7 @@ permalink: /about/
 * <a href="mailto:{{ site.email }}">邮箱</a>
 * [RSS订阅](/feed.xml)
 
-#### 友情链接(排名不分先后 ^_^)
+#### 友情链接(排名不分先后)
 
 * [姜老大的博客](http://www.innomysql.net/)
 * [网易后台技术官方博客](http://www.bitstech.net/)
