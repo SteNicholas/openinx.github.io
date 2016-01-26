@@ -9,7 +9,7 @@ permalink: /about/
 * [技能树](/skill-tree/openinx.html)
 * [兴趣树](/images/Openinx-Interest.png)
 
-### 心中极客形象
+#### 心中极客形象
 
 * 不限语言，代码信手拈来
 * 算法功力深厚， 玩个 Codeforces 或者 Topcoder 轻轻松松，毫无压力。
@@ -19,15 +19,26 @@ permalink: /about/
 * 少废话，多行动
 
 
-### 心中“好”的开源项目
+#### 心中“好”的开源项目
 
 * 代码简单，简单到什么程度呢？ 没有一行冗余的代码。
 * 代码清晰，何谓清晰？ 他人只需跟着作者的代码走，就能轻松理解作者的初衷。
 * 依赖越少越好，但又不与第一点相悖。
 
-### 联系我
+#### 联系我
 
 * [GitHub](https://github.com/openinx)
 * [豆瓣](http://www.douban.com/people/68306838/)
 * <a href="mailto:{{ site.email }}">邮箱</a>
 * [RSS订阅](/feed.xml)
+
+#### 友情链接(排名不分先后 ^_^)
+
+* [姜老大的博客](http://www.innomysql.net/)
+* [网易后台技术官方博客](http://www.bitstech.net/)
+* [老蒋的博客](http://www.sysdb.cn/)
+* [郭忆与RDS](http://guoyirds.com/)
+* [明星的博客](http://mingxinglai.com/)
+* [辉总的博客](http://www.mysqlplay.com/)
+* [马进与DDB](http://www.majin163.com/)
+* [李者大神](http://senarukana.github.io/)
