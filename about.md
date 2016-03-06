@@ -8,6 +8,7 @@ permalink: /about/
 
 * [技能树](/skill-tree/openinx.html)
 * [兴趣树](/images/Openinx-Interest.png)
+* [我的分享资料](http://openinx.github.io/2012/01/01/my-share/)
 
 #### 心中极客形象
 
