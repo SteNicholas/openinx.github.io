@@ -44,3 +44,4 @@ permalink: /about/
 * [马进与DDB](http://www.majin163.com/)
 * [李者大神](http://senarukana.github.io/)
 * [段爷与CoreOS](http://www.serfdom.cn/)
+* [有态度的HBase|欣欣的博客](http://hbasefly.com/)
