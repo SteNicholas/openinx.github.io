@@ -35,8 +35,8 @@ permalink: /about/
 
 #### 友情链接(排名不分先后)
 
-* [姜老大的博客](http://www.innomysql.net/)
 * [网易后台技术官方博客](http://www.bitstech.net/)
+* [姜老大的博客](http://www.innomysql.net/)
 * [老蒋的博客](http://www.sysdb.cn/)
 * [郭忆与RDS](http://guoyirds.com/)
 * [明星的博客](http://mingxinglai.com/)
@@ -45,3 +45,5 @@ permalink: /about/
 * [李者大神](http://senarukana.github.io/)
 * [段爷与CoreOS](http://www.serfdom.cn/)
 * [有态度的HBase|欣欣的博客](http://hbasefly.com/)
+* [魏子珺的博客](http://weizijun.cn/)
+* [杨哲的博客](http://yangzhe1991.org/)
