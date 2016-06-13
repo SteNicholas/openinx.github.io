@@ -25,11 +25,11 @@ tags: [ leveldb ]
 
 ### LevelDB主要类图
 
-![Alt leveldb-class.png](/images/leveldb-class.png)
+<img src="/images/leveldb-class.png" width="100%">
 
 ### LevelDB/SSTable编码图详细
 
-![Alt TableFormat.png](/images/TableFormat.png)
+<img src="/images/TableFormat.png" width="70%">
 
 ### db/build.cc
 将一个串有序的key-Value编码写入到TableFile里，并且执行fsync。
