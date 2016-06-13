@@ -180,7 +180,7 @@ tags: [ mysql ]
 
 * 虚拟同步
 
-![Alt sync.png](/images/sync.png)
+<img src="/images/sync.png" width="100%">
 
 ### MYSQL好点的书籍
 _话说其他关于MYSQL的书，基本都渣的一塌糊涂_
