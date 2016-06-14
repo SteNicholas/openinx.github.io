@@ -27,7 +27,8 @@ tags: [ kyotocabinet ]
 4. 打开文件的mmap的内存大小有关(在代码中是`msiz_`这个变量)。hashdb的IO封装有两个:`write_fast`和`read_fast`. 二者都是看读取的数据段的off和size这一段buffer，假设完全在mmap映射内存段内，直接读该内存，有超出内存映射段外的直接用pread和pwrite这两个系统调用。  
 5. 没有用任何LRUCache.  
 
-![Alt tchhashdb.png](/images/tchhashdb.png)
+
+<img src="/images/tchhashdb.png" width="100%">
 
 ### kchplantdb.h
 
@@ -38,9 +39,9 @@ c. 以下两个条件都满足才会分裂： a. 叶子节点记录数超过2条
 
 * B+ Tree的数据存储结构
 
-![Alt KyotoCabinet-BPlusTree-dataFormat.png](/images/KyotoCabinet-BPlusTree-dataFormat.png)
+<img src="/images/KyotoCabinet-BPlusTree-dataFormat.png" width="100%">
 
 * PlantDB的类组织结构
 
-![Alt KyotoCabinetBPlusTreeClass.png](/images/KyotoCabinetBPlusTreeClass.png)
+<img src="/images/KyotoCabinetBPlusTreeClass.png" width="100%">
 

@@ -19,11 +19,9 @@ tags: [ tokudb ]
 
 ### TokuDB 分型树的数据结构图
 
-![Alt basementNode.png](/images/basementNode.png)
+<img src="/images/basementNode.png" width="100%">
 
 
 ### TokuDB 代码结构图
 
-![Alt tokudb.png](/images/tokudb.png)
-
-
+<img src="/images/tokudb.png" width="100%">
