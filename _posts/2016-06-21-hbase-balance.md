@@ -42,14 +42,14 @@ assgin region的具体流程为:
 
 StochasticLoadBalancer 这种策略真的是非常复杂，简单来讲，是一种综合权衡一下6个因素的均衡策略：
 
-* 每台服务器读请求数(ReadRequestCostFunction)
-* 每台服务器写请求数(WriteRequestCostFunction)
-* Region个数(RegionCountSkewCostFunction)
+* 每台RegionServer读请求数(ReadRequestCostFunction)
+* 每台RegionServer写请求数(WriteRequestCostFunction)
+* 每台RegionServer的Region个数(RegionCountSkewCostFunction)
 * 移动代价(MoveCostFunction)
 * 数据locality(TableSkewCostFunction)
 * 每张表占据RegionServer中region个数上限(LocalityCostFunction)
 
-对于cluster的每一种region分布， 采用6个因素加权的方式算出一个代价值，这个代价值就用来评估当前region分布是否均衡，越均衡代价值越低。然后通过成千上万次随机迭代来找到一组RegionMove的序列，使得最终的代价值严格递减。
+对于cluster的每一种region分布， 采用6个因素加权的方式算出一个代价值，这个代价值就用来评估当前region分布是否均衡，越均衡则代价值越低。然后通过成千上万次随机迭代来找到一组RegionMove的序列，使得最终的代价值严格递减。
 得到的这一组RegionMove就是HMaster最终执行的region迁移方案。
 
 这里用一段伪代码来描述这个迭代的过程： 
@@ -63,18 +63,18 @@ for(step = 0 ; step < 1000000; step ++ ){
 	newCost  = computeCost(action) ;
 	if (newCost < currentCost){
 		currentCost = newCost;
+		plans.add( action );
 	}else{
 		undoAction(action);
 	}
-	plans.add( action )
 }
 ```
 
-其中generateMove()每次随机选择以下3种策略之一来生成RegionMove:
+其中generateMove()每次随机选择以下3种策略中的一种来生成RegionMove:
 
-1. 随机选择两个RS, 从每个RS中随机选择两个Region，然后生成一个Action, 这个Action有一半概率做RegionMove（从Region多的RS迁移到Region少的RS）, 另一半概率做RegionSwap。
+1. 随机选择两个RS, 从每个RS中随机选择两个Region，然后生成一个Action, 这个Action有一半概率做RegionMove（从Region多的RS迁移到Region少的RS）, 另一半概率做RegionSwap(两个RS之间做Region的交换)。
 2. 选择Region最多的RS和Region最少的RS，然后生成一个Action, 这个Action一半概率做RegionMove, 一半概率做RegionSwap。
-3. 随机找一个RS，然后找到该RS上数据locality最差的Region，然后找到Region大部分数据落在的RS，然后生成一个Action，该Action用来把Region迁移到它应该所在的RS，用来提高locality. 
+3. 随机找一个RS，然后找到该RS上数据locality最差的Region，再找到Region大部分数据落在的RS，然后生成一个Action，该Action用来把Region迁移到它应该所在的RS，用来提高locality. 
 
 
 对于这种策略，JavaDoc上说效果比较好，但其中的合理性个人觉得有待测试数据的证明(官方基本没有给出这方面的测试结果)。如果6个因素每个参数占据的权重如果没有调好的话，会导致线上的Region大量不均衡。按照我的一次线上经历，采用如下blance配置，出现过每次balance都只选择60个左右的plan去移动， 但真实的情况是145个RS，其中region数量最多的有700+个， 最少的region数量有2个，然后其他RS的region数量在2~700不等，这时候按理来讲应该需要进行大量的balance，但HMaster每隔一个period只生成60个plan左右去移动，这样balance太慢导致很长一段时间内负载不均，有的RS非常清闲，有的RS非常繁忙经常超时。
