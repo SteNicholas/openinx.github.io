@@ -6,8 +6,9 @@ category:
 tags: [ hbase ]
 ---
 
-本文来讲讲hbase的balance实现流程。 
+HBase是一种支持自动负载均衡的分布式KV数据库，在开启balance的开关(balance_switch)后，HBase的HMaster进程会自动根据 __指定策略__ 挑选出一些Region，并将这些Region分配给负载比较低的RegionServer上。官方目前支持两种挑选Region的策略，一种叫做DefaultLoadBalancer，另一种叫做StochasticLoadBalancer，这两种策略后面会具体讲到。由于HBase的所有数据(包括HLog/Meta/HStoreFile等)都是写入到HDFS文件系统中的， 因此HBase的Region移动其实非常轻量级。在做Region移动的时候，保持这个Region对应的HDFS文件位置不变，只需要将Region的Meta数据分配到相关的RegionServer即可，整个Region移动的过程取决于RegionClose以及RegionOpen的耗时，这个时间一般都很短。
 
+本文来讲讲hbase的balance实现。 
 
 ### balance的流程
 
