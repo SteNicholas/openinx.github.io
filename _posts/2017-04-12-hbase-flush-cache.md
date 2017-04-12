@@ -8,7 +8,7 @@ tags: [ 扯淡 ]
 
 #### FlushCache时间点
 
-1. 当memstore的字节数超过`hbase.hregion.memstore.flush.size`时, Region会发起一次异步的Flush Region操作,  这次Flush请求其实是放入到一个叫做MemStoreFlusher的队列中, 这个队列后面跟着一个线程池, 每个线程用来从队列中取Flush 请求, 然后每个FlushHandler并发地去进行对应的Flush操作. 注意这里有个参数可以控制FlushHandler的个数,叫做`hbase.hstore.flusher.count`。
+1. 当memstore的字节数超过`hbase.hregion.memstore.flush.size`时, Region会发起一次异步的Flush Region操作,  这次Flush请求其实是放入到一个叫做MemStoreFlusher的队列中, 这个队列后面跟着一个线程池, 每个线程从队列中取Flush 请求, 然后每个FlushHandler并发地去进行对应的Flush操作. 注意这里有个参数可以控制FlushHandler的个数,叫做`hbase.hstore.flusher.count`。
 2. 创建snapshot的时候,需要Flush Cache。
 3. 关闭Region的时候，需要Flush Cache。
 4. 做Region的相关操作，例如Merge/Split操作时，需要FlushCache。
@@ -29,9 +29,9 @@ tags: [ 扯淡 ]
 
 首先FlushCache必定会导致storeFiles增多，storeFiles越多，compaction的压力越大。compaction操作越多，磁盘带宽压力越大，反过来也会影响flushCache的效率。因此，RegionServer做了一个限制就是当storeFiles个数超过blockingFilesCount的时候，可以让flush request最多等待blockingWaitTime时长，如果超过这个时长了，　storeFiles的个数还是超过了blockingFilesCount，那就直接进行flush操作，不等了。
 
-> 如果将爱时间轴按照第３步切分为两段，一段是之前，一段是之后，那么之前和之后，scanner操作有什么变化？
+> 如果将时间轴按照第３步切分为两段，一段是之前，一段是之后，那么之前和之后，scanner操作有什么变化？
 
-对于第3步之前，snapshot那部分数据是读内存，第３部之后，之前在内存中的那部分数据落到磁盘了。如果这期间有一个scan操作，那么需要在数据落到磁盘的时候，通知这个scan，告知下次读取数据，必须去磁盘中读数据，这个通知操作，就是通过ChangedReadersObserver来完成的，其实就是把之前打开的各种scanner都关闭掉，重新打开store中个各种scanner。　
+对于第3步之前，snapshot那部分数据是读内存，第3部之后，之前在内存中的那部分数据落到磁盘了。如果这期间有一个scan操作，那么需要在数据落到磁盘的时候，通知这个scan，告知下次读取数据，必须去磁盘中读数据，这个通知操作，就是通过ChangedReadersObserver来完成的，其实就是把之前打开的各种scanner都关闭掉，重新打开store中个各种scanner(参见`StoreScanner.resetScannerStack`)。　
 
 > Flush和Split有什么关系？
 
