@@ -112,7 +112,5 @@ Place sst to level i+1;
 
 做compaction操作不能破坏数据均匀性(我认为数据均匀就是： 第i(i>0)层的每一个sst与第i+1层的sst的overlap的sst个数控制在10个以内。或者这么定义: 假设操作的所有key在[smallest,largets]这个区间，那么第i(i>0)层的每个sst应该均分这个区间的所有key)，因为不均匀的数据分布，会导致接下来的compaction耗费极大。  
 
-总之, compaction是牺牲了write性能，提高get性能，然后compaction又做了一个自我平衡。leveldb就是各种均衡的结果。  
-
-以上纯属SB在YY。  
+总之, compaction是牺牲了write性能，提高get性能，然后compaction又做了一个自我平衡。leveldb就是各种均衡的结果。 
 
