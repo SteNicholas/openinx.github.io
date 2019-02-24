@@ -6,7 +6,7 @@ category:
 tags: []
 ---
 
-最近在重新梳理HBase的读写全路径Offheap的思路。在我的性能测试结果中发现，100% Get的场景受Young GC的影响仍然比较严重，在[HBASE-21879](https://issues.apache.org/jira/browse/HBASE-21879)贴的两幅图中，可以非常明显的观察到Get操作的p999延迟跟G1 Young GC的耗时基本相同，都在100ms左右。按理说，在[HBASE-11425](https://issues.apache.org/jira/browse/HBASE-11425)之后，应该是所有的内存分配都是在offheap的，heap内应该几乎没有内存申请。但是，在仔细梳理代码后，返现从HFile中读Block的过程仍然是先拷贝到堆内去的，一直到BucketCache的WriterThread异步地把Block刷新到Offheap上堆内的DataBlock才释放。而磁盘型压测试验中，由于数据量大，Cache命中率并不高(~70%)，所有会有大量的Block读取走磁盘IO，于是Heap内产生大量的年轻代对象，最终导致Young区GC压力上升。
+最近在重新梳理HBase的读写全路径Offheap的思路。在我的性能测试结果中发现，100% Get的场景受Young GC的影响仍然比较严重，在[HBASE-21879](https://issues.apache.org/jira/browse/HBASE-21879)贴的两幅图中，可以非常明显的观察到Get操作的p999延迟跟G1 Young GC的耗时基本相同，都在100ms左右。按理说，在[HBASE-11425](https://issues.apache.org/jira/browse/HBASE-11425)之后，应该是所有的内存分配都是在offheap的，heap内应该几乎没有内存申请。但是，在仔细梳理代码后，发现从HFile中读Block的过程仍然是先拷贝到堆内去的，一直到BucketCache的WriterThread异步地把Block刷新到Offheap上堆内的DataBlock才释放。而磁盘型压测试验中，由于数据量大，Cache命中率并不高(~70%)，所有会有大量的Block读取走磁盘IO，于是Heap内产生大量的年轻代对象，最终导致Young区GC压力上升。
 
 消除Young GC直接的思路就是从HFile读DataBlock的时候，直接往Offheap上读。之前留下这个坑，主要是HDFS不支持ByteBuffer的Pread接口，当然后面开了[HDFS-3246](https://issues.apache.org/jira/browse/HDFS-3246)在跟进这个事情。但后面发现的一个问题就是：Rpc路径上读出来的DataBlock，进了BucketCache之后其实是先放到一个叫做RamCache的临时Map中，而且Block一旦进了这个Map就可以被其他的RPC给命中，所以当前RPC退出后并不能直接就把之前读出来的DataBlock给释放了，必须考虑RamCache是否也释放了。于是，就需要一种机制来跟踪一块内存是否同时不再被所有RPC路径和RamCache引用，只有都不引用的情况下，才能释放内存。自然而言的想到用reference Count机制来跟踪ByteBuffer，但发现其实Netty依赖已经较完整地实现了这个东西，于是看了一下Netty的内存管理机制。
 

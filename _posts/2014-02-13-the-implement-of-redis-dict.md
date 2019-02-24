@@ -6,17 +6,17 @@ category:
 tags: [algorithm]
 ---
 
-####声明：本文版权归OpenInx所有，博客地址：http://openinx.github.io
+__声明：本文版权归OpenInx所有，博客地址：http://openinx.github.io__
  
-###Hash表（Hash Table）
+__Hash表（Hash Table）__
 
 hash表实际上由size个的桶组成一个桶数组table[0...size-1] 。当一个对象经过哈希之后，得到一个相应的value , 于是我们把这个对象放到桶table[ value ]中。当一个桶中有多个对象时，我们把桶中的对象组织成为一个链表。这在冲突处理上称之为拉链法。
 
-###负载因子（load factor）
+__负载因子（load factor）__
 
 假设一个hash表中桶的个数为 size , 存储的元素个数为used .则我们称 used / size 为负载因子loadFactor . 一般的情况下，当`loadFactor<=1`时，hash表查找的期望复杂度为O(1). 因此，每次往hash表中添加元素时，我们必须保证是在`loadFactor<1`的情况下，才能够添加。
 
-###容量扩张（Expand）& 分摊转移
+__容量扩张（Expand）& 分摊转移__
 
 当我们添加一个新元素时，一旦loadFactor大于等于1了，我们不能单纯的往hash表里边添加元素。因为添加完之后，loadFactor将大于1，这样也就不能保证查找的期望时间复杂度为常数级了。这时，我们应该对桶数组进行一次容量扩张，让size增大 。这样就能保证添加元素后 used / size 仍然小于等于1 ， 从而保证查找的期望时间复杂度为O(1).但是，如何进行容量扩张呢？ C++中的vector的容量扩张是一种好方法。于是有了如下思路 ：　
 
@@ -51,7 +51,7 @@ typedef struct dict {
 dictht指的就是上面说的桶数组，size用来表示容量，一般为2^n ，sizemask（一般为2^n-1,二进制表示为n个1）用来对哈希值取模 , used表示hash表中存储了多少个元素。
 dict表示字典，由两个桶数组组成，type是一些函数指针（哈希函数及key，value的一些处理函数）。
 
-###d->rehashidx
+__d->rehashidx__
  
 这个变量的理解很关键：
 
@@ -97,8 +97,7 @@ for(i = 1 ; i <= n ; ++ i){
 ```
 
 
-
-###字典的迭代器（Iterator）
+__字典的迭代器（Iterator）__
  
 分为安全迭代器( safe Iterator )和非安全迭代器 。
 
