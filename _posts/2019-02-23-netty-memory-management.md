@@ -6,9 +6,9 @@ category:
 tags: []
 ---
 
-最近在重新梳理HBase的读写全路径Offheap的思路。在我的性能测试结果中发现，100% Get的场景受Young GC的影响仍然比较严重，在[HBASE-21879](https://issues.apache.org/jira/browse/HBASE-21879)贴的两幅图中，可以非常明显的观察到Get操作的p999延迟跟G1 Young GC的耗时基本相同，都在100ms左右。按理说，在[HBASE-11425](https://issues.apache.org/jira/browse/HBASE-11425)之后，应该是所有的内存分配都是在offheap的，heap内应该几乎没有内存申请。但是，在仔细梳理代码后，发现从HFile中读Block的过程仍然是先拷贝到堆内去的，一直到BucketCache的WriterThread异步地把Block刷新到Offheap上堆内的DataBlock才释放。而磁盘型压测试验中，由于数据量大，Cache命中率并不高(~70%)，所有会有大量的Block读取走磁盘IO，于是Heap内产生大量的年轻代对象，最终导致Young区GC压力上升。
+最近在重新梳理HBase的读写全路径Offheap的思路。在我的性能测试结果中发现，100% Get的场景受Young GC的影响仍然比较严重，在[HBASE-21879](https://issues.apache.org/jira/browse/HBASE-21879)贴的两幅图中，可以非常明显的观察到Get操作的p999延迟跟G1 Young GC的耗时基本相同，都在100ms左右。按理说，在[HBASE-11425](https://issues.apache.org/jira/browse/HBASE-11425)之后，应该是所有的内存分配都是在offheap的，heap内应该几乎没有内存申请。但是，在仔细梳理代码后，发现从HFile中读Block的过程仍然是先拷贝到堆内去的，一直到BucketCache的WriterThread异步地把Block刷新到Offheap，堆内的DataBlock才释放。而磁盘型压测试验中，由于数据量大，Cache命中率并不高(~70%)，所以会有大量的Block读取走磁盘IO，于是Heap内产生大量的年轻代对象，最终导致Young区GC压力上升。
 
-消除Young GC直接的思路就是从HFile读DataBlock的时候，直接往Offheap上读。之前留下这个坑，主要是HDFS不支持ByteBuffer的Pread接口，当然后面开了[HDFS-3246](https://issues.apache.org/jira/browse/HDFS-3246)在跟进这个事情。但后面发现的一个问题就是：Rpc路径上读出来的DataBlock，进了BucketCache之后其实是先放到一个叫做RamCache的临时Map中，而且Block一旦进了这个Map就可以被其他的RPC给命中，所以当前RPC退出后并不能直接就把之前读出来的DataBlock给释放了，必须考虑RamCache是否也释放了。于是，就需要一种机制来跟踪一块内存是否同时不再被所有RPC路径和RamCache引用，只有都不引用的情况下，才能释放内存。自然而言的想到用reference Count机制来跟踪ByteBuffer，但发现其实Netty依赖已经较完整地实现了这个东西，于是看了一下Netty的内存管理机制。
+消除Young GC直接的思路就是从HFile读DataBlock的时候，直接往Offheap上读。之前留下这个坑，主要是HDFS不支持ByteBuffer的Pread接口，当然后面开了[HDFS-3246](https://issues.apache.org/jira/browse/HDFS-3246)在跟进这个事情。但后面发现的一个问题就是：Rpc路径上读出来的DataBlock，进了BucketCache之后其实是先放到一个叫做RamCache的临时Map中，而且Block一旦进了这个Map就可以被其他的RPC给命中，所以当前RPC退出后并不能直接就把之前读出来的DataBlock给释放了，必须考虑RamCache是否也释放了。于是，就需要一种机制来跟踪一块内存是否同时不再被所有RPC路径和RamCache引用，只有在都不引用的情况下，才能释放内存。自然而言的想到用reference Count机制来跟踪ByteBuffer，后面发现其实Netty已经较完整地实现了这个东西，于是看了一下Netty的内存管理机制。
 
 Netty作为一个高性能的基础框架，为了保证GC对性能的影响降到最低，做了大量的offheap化。而offheap的内存是程序员自己申请和释放，忘记释放或者提前释放都会造成内存泄露问题，所以一个好的内存管理器很重要。首先，什么样的内存分配器，才算一个是一个“好”的内存分配器：
 
@@ -56,6 +56,22 @@ Netty的Chunk内分配算法，则兼顾了 __申请/释放效率__ 和 __用户
 
 通过上述算法，Netty同时保证了Chunk内部分配/申请多个Pages的高效和用户内存访问的高效。
 
+__引用计数和内存泄露检查__
+
+上文提到，HBase的ByteBuf也尝试采用引用计数来跟踪一块内存的生命周期，被引用一次则其refCount++，取消引用则refCount--，一旦refCount=0则认为内存可以回收到内存池。思路很简单，只是需要考虑下线程安全的问题。
+
+但事实上，即使有了引用计数，可能还是容易碰到忘记显式refCount--的操作，Netty提供了一个叫做ResourceLeakDetector的跟踪器。在Enable状态下，任何分出去的ByteBuf都会进入这个跟踪器中，回收ByteBuf时则从跟踪器中删除。一旦发现某个时间点的ByteBuff数太大，则认为存在内存泄露。开启这个功能必然会对性能有所影响，所以生产环境下都不开这个功能，只有在怀疑有内存泄露问题时开启用来定位问题用。
+
+__总结__
+
+Netty的内存管理其实做的很精细，对HBase的Offheap化设计有不少启发。目前HBase的内存分配器至少有3种：
+1. Rpc路径上offheap内存分配器。实现较为简单，以定长64KB为单位分配Page给对象，发现Offheap池无法分出来，则直接去Heap申请。
+2. Memstore的MSLAB内存分配器，核心思路跟RPC内存分配器相差不大。应该可以合二为一。
+3. BucketCache上的BucketAllocator。
+
+就第1点和第2点而言，我觉得今后尝试改成用Netty的PooledByteBufAllocator应该问题不大，毕竟Netty在多核并发/内存利用率以及CacheCoherence上都做了不少优化。由于BucketCache既可以存内存，又可以存SSD磁盘，甚至HDD磁盘。所以BucketAllocator做了更高程度的抽象，维护的都是一个(offset,len)这样的二元组，Netty现有的接口并不能满足需求，所以估计暂时只能维持现状。
+
+可以预期的是，HBase2.0性能必定是朝更好方向发展的，尤其是GC对P999的影响会越来越小。
 
 参考资料
 
