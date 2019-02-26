@@ -76,5 +76,5 @@ Netty的内存管理其实做的很精细，对HBase的Offheap化设计有不少
 参考资料
 
 1. https://people.freebsd.org/~jasone/jemalloc/bsdcan2006/jemalloc.pdf
-2. https://www.facebook.com/notes/facebook-engineering/scalable-memory-allocation-using-jemalloc/%0A%20%20%20480222803919
+2. https://www.facebook.com/notes/facebook-engineering/scalable-memory-allocation-using-jemalloc/480222803919/
 3. https://netty.io/wiki/reference-counted-objects.html
